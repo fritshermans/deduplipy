@@ -1,8 +1,8 @@
 import pandas as pd
 from sklearn.base import BaseEstimator
 
-from set_cover import greedy_set_cover
-from blocking_rules import *
+from deduplipy.set_cover import greedy_set_cover
+from deduplipy.blocking_rules import *
 
 
 class Blocking(BaseEstimator):
