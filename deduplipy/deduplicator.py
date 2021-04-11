@@ -3,7 +3,7 @@ from active_learning import ActiveStringMatchLearner
 from blocking import Blocking
 
 
-class DedupliPy:
+class Deduplicator:
     def __init__(self, X_initial, y_initial, col_name, n_queries, rules=None):
         self.X_initial = X_initial
         self.y_initial = y_initial
