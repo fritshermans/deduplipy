@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 
 def load_hotel_rooms():
-    df = pd.read_csv('../notebooks/data/room_type.csv').rename(columns={'Expedia': 'expedia', 'Booking.com': 'booking'})
+    df = pd.read_csv('data/room_type.csv').rename(columns={'Expedia': 'expedia', 'Booking.com': 'booking'})
     df['match'] = 1
     expedia = df.expedia.unique()
     booking = df.booking.unique()
@@ -20,7 +20,7 @@ def load_hotel_rooms():
 
 
 def load_stoxx50():
-    df = pd.read_excel('stoxx50_extended_with_id.xlsx')
+    df = pd.read_excel('data/stoxx50_extended_with_id.xlsx')
     l = list(product(df.values.tolist(), df.values.tolist()))
     df_all = pd.DataFrame(list(map(lambda x: sum(x, []), l)),
                           columns=['name_address_1', 'id_1', 'name_address_2', 'id_2'])
@@ -42,7 +42,7 @@ def load_stoxx50():
 def load_chicago_childcare():
     size = 10_000
 
-    df = pd.read_csv('/Users/fritshermans/Documents/dedupe-examples/csv_example/csv_example_input_with_true_ids.csv')
+    df = pd.read_csv('data/csv_example_input_with_true_ids.csv')
     df['name_address'] = df['Site name'] + " " + df['Address']
     df = df[['True Id', 'name_address']]
 
