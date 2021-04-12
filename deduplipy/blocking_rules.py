@@ -28,6 +28,13 @@ def sorted_integers(x):
     return " ".join(numeric_list)
 
 
+def largest_integer(x):
+    digits = re.compile(r'\d+').findall
+    numeric_list = digits(x)
+    numeric_list = sorted([int(n) for n in numeric_list])
+    return str(numeric_list[-1])
+
+
 def three_letter_abbreviation(x):
     letters = re.compile((r'[a-zA-Z]+')).findall
     word_list = letters(x)
@@ -35,4 +42,5 @@ def three_letter_abbreviation(x):
     return abbreviation
 
 
-all_rules = [first_word, first_two_words, first_three_letters, sorted_integers, three_letter_abbreviation]
+all_rules = [first_word, first_two_words, first_three_letters, sorted_integers, largest_integer,
+             three_letter_abbreviation]
