@@ -4,6 +4,7 @@ from modAL.uncertainty import uncertainty_sampling
 from sklearn.base import BaseEstimator
 
 from deduplipy.string_matcher import StringMatcher
+from deduplipy.utils import input_assert
 
 
 class ActiveStringMatchLearner(BaseEstimator):
@@ -30,7 +31,7 @@ class ActiveStringMatchLearner(BaseEstimator):
             print("Is this a match?")
             print('->', query_inst[0][0])
             print('->', query_inst[0][1])
-            user_input = input()
+            user_input = input_assert("", ['0', '1', 'y', 'n'])
             user_input = user_input.replace('y', '1').replace('n', '0')
             y_new = np.array([int(user_input)], dtype=int)
             self.learner.teach(query_inst.reshape(1, -1), y_new)
