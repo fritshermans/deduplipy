@@ -40,6 +40,30 @@ def first_five_letters(x):
         return ''
 
 
+def first_three_letters_no_space(x):
+    x = x.replace(' ', '')
+    if len(x):
+        return x[:3]
+    else:
+        return ''
+
+
+def first_four_letters_no_space(x):
+    x = x.replace(' ', '')
+    if len(x):
+        return x[:4]
+    else:
+        return ''
+
+
+def first_five_letters_no_space(x):
+    x = x.replace(' ', '')
+    if len(x):
+        return x[:5]
+    else:
+        return ''
+
+
 def sorted_integers(x):
     digits = re.compile(r'\d+').findall
     numeric_list = digits(x)
@@ -69,4 +93,5 @@ def three_letter_abbreviation(x):
 
 
 all_rules = [whole_field, first_word, first_two_words, first_three_letters, first_four_letters, first_five_letters,
-             sorted_integers, last_integer, largest_integer, three_letter_abbreviation]
+             first_three_letters_no_space, first_four_letters_no_space, first_five_letters_no_space, sorted_integers,
+             last_integer, largest_integer, three_letter_abbreviation]
