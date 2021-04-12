@@ -3,8 +3,8 @@ from modAL.models import ActiveLearner
 from modAL.uncertainty import uncertainty_sampling
 from sklearn.base import BaseEstimator
 
-from deduplipy.string_matcher import StringMatcher
-from deduplipy.utils import input_assert
+from deduplipy.string_matcher.string_matcher import StringMatcher
+from deduplipy.active_learning.utils_active_learning import input_assert
 
 
 class ActiveStringMatchLearner(BaseEstimator):

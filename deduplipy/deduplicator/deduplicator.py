@@ -1,6 +1,6 @@
-from deduplipy.clustering import hierarchical_clustering
-from deduplipy.active_learning import ActiveStringMatchLearner
-from deduplipy.blocking import Blocking
+from deduplipy.clustering.clustering import hierarchical_clustering
+from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
+from deduplipy.blocking.blocking import Blocking
 
 
 class Deduplicator:
