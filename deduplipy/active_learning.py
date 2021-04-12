@@ -21,22 +21,35 @@ class ActiveStringMatchLearner(BaseEstimator):
     def _get_lr_params(self):
         return self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
 
+    def _get_active_learning_input(self, query_inst, learn_counter):
+        print(f'\n{learn_counter + 1}/{self.n_queries}', self._get_lr_params())
+        print("Is this a match?")
+        print('->', query_inst[0][0])
+        print('->', query_inst[0][1])
+        user_input = input_assert("", ['0', '1', 'y', 'n', 'p'])
+        user_input = user_input.replace('y', '1').replace('n', '0')
+        if user_input == 'p':
+            y_new = None
+        else:
+            y_new = np.array([int(user_input)], dtype=int)
+        return y_new
+
     def fit(self, X, y=None):
         X_pool = X.copy()
         self.parameters = [self._get_lr_params()]
 
+        query_idx_prev, query_inst_prev = None, None
+        learn_counter = 0
         for i in range(self.n_queries):
             query_idx, query_inst = self.learner.query(X_pool)
-            print(f'\n{i + 1}/{self.n_queries}', self._get_lr_params())
-            print("Is this a match?")
-            print('->', query_inst[0][0])
-            print('->', query_inst[0][1])
-            user_input = input_assert("", ['0', '1', 'y', 'n'])
-            user_input = user_input.replace('y', '1').replace('n', '0')
-            y_new = np.array([int(user_input)], dtype=int)
+            y_new = self._get_active_learning_input(query_inst, learn_counter)
+            if y_new is None:
+                y_new = self._get_active_learning_input(query_inst_prev, learn_counter)
+            query_idx_prev, query_inst_prev = query_idx, query_inst
             self.learner.teach(query_inst.reshape(1, -1), y_new)
             X_pool = np.delete(X_pool, query_idx, axis=0)
             self.parameters.append(self._get_lr_params())
+            learn_counter+=1
 
     def predict(self, X):
         return self.learner.predict(X)
