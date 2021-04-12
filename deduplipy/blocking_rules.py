@@ -26,12 +26,32 @@ def first_three_letters(x):
         return ''
 
 
+def first_four_letters(x):
+    if len(x):
+        return x[:4]
+    else:
+        return ''
+
+
+def first_five_letters(x):
+    if len(x):
+        return x[:5]
+    else:
+        return ''
+
+
 def sorted_integers(x):
     digits = re.compile(r'\d+').findall
     numeric_list = digits(x)
     numeric_list = sorted([int(n) for n in numeric_list])
     string_list = [str(n) for n in numeric_list]
     return " ".join(string_list)
+
+
+def last_integer(x):
+    digits = re.compile(r'\d+').findall
+    numeric_list = digits(x)
+    return numeric_list[-1]
 
 
 def largest_integer(x):
@@ -48,5 +68,5 @@ def three_letter_abbreviation(x):
     return abbreviation
 
 
-all_rules = [whole_field, first_word, first_two_words, first_three_letters, sorted_integers, largest_integer,
-             three_letter_abbreviation]
+all_rules = [whole_field, first_word, first_two_words, first_three_letters, first_four_letters, first_five_letters,
+             sorted_integers, last_integer, largest_integer, three_letter_abbreviation]
