@@ -1,6 +1,10 @@
 import re
 
 
+def whole_field(x):
+    return x
+
+
 def first_word(x):
     if len(x):
         return x.split()[0]
@@ -44,5 +48,5 @@ def three_letter_abbreviation(x):
     return abbreviation
 
 
-all_rules = [first_word, first_two_words, first_three_letters, sorted_integers, largest_integer,
+all_rules = [whole_field, first_word, first_two_words, first_three_letters, sorted_integers, largest_integer,
              three_letter_abbreviation]
