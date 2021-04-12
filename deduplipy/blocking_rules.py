@@ -24,8 +24,10 @@ def first_three_letters(x):
 
 def sorted_integers(x):
     digits = re.compile(r'\d+').findall
-    numeric_list = sorted(digits(x))
-    return " ".join(numeric_list)
+    numeric_list = digits(x)
+    numeric_list = sorted([int(n) for n in numeric_list])
+    string_list = [str(n) for n in numeric_list]
+    return " ".join(string_list)
 
 
 def largest_integer(x):
