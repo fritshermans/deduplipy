@@ -22,7 +22,7 @@ def load_hotel_rooms(return_pairs=False):
         df = pd.concat((pd.DataFrame(expedia), pd.DataFrame(booking)))
         df.columns = ['room_description']
         df.reset_index(inplace=True, drop=True)
-        return df.values
+        return df
 
 
 def load_stoxx50(return_pairs=False):
@@ -45,7 +45,7 @@ def load_stoxx50(return_pairs=False):
         X_test, y_test = df_test[['name_address_1', 'name_address_2']].values, df_test['match'].values
         return X_train, X_test, y_train, y_test
     else:
-        return df['name'].values
+        return df[['name']]
 
 
 def load_chicago_childcare(return_pairs=False):
@@ -82,7 +82,7 @@ def load_chicago_childcare(return_pairs=False):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
         return X_train, X_test, y_train, y_test
     else:
-        return df['name_address'].values
+        return df[['name_address']]
 
 
 def load_data(kind='stoxx50', return_pairs=False):
