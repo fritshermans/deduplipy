@@ -1,3 +1,6 @@
+from itertools import product
+
+import pandas as pd
 import numpy as np
 from modAL.models import ActiveLearner
 from modAL.uncertainty import uncertainty_sampling
@@ -8,18 +11,19 @@ from deduplipy.active_learning.utils_active_learning import input_assert
 
 
 class ActiveStringMatchLearner(BaseEstimator):
-    def __init__(self, X_initial, y_initial, n_queries):
-        self.X_initial = X_initial
-        self.y_initial = y_initial
+    def __init__(self, n_queries, col):
         self.n_queries = n_queries
+        self.col = col
         self.learner = ActiveLearner(
             estimator=StringMatcher(),
             query_strategy=uncertainty_sampling,
-            X_training=X_initial, y_training=y_initial
         )
 
     def _get_lr_params(self):
-        return self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
+        if hasattr(self.learner.estimator.classifier.named_steps['logisticregression'], 'coef_'):
+            return self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
+        else:
+            return None
 
     def _get_active_learning_input(self, query_inst, learn_counter):
         print(f'\n{learn_counter + 1}/{self.n_queries}', self._get_lr_params())
@@ -34,14 +38,21 @@ class ActiveStringMatchLearner(BaseEstimator):
         y_new = np.array([int(user_input)], dtype=int)
         return y_new
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, n_samples=1_000):
         X_pool = X.copy()
+        df_sample = X_pool.sample(n=int(n_samples ** 0.5))
+        sample_combinations = pd.DataFrame(
+            list(product(df_sample[self.col].values.tolist(), df_sample[self.col].values.tolist())),
+            columns=[f'{self.col}_1', f'{self.col}_2'])
+        sample_combinations = sample_combinations.drop_duplicates()
+        sample_combinations_array = sample_combinations.values
+
         self.parameters = [self._get_lr_params()]
 
         query_idx_prev, query_inst_prev = None, None
         learn_counter = 0
         for i in range(self.n_queries):
-            query_idx, query_inst = self.learner.query(X_pool)
+            query_idx, query_inst = self.learner.query(sample_combinations_array)
             y_new = self._get_active_learning_input(query_inst, learn_counter)
             if y_new == -1:
                 y_new = self._get_active_learning_input(query_inst_prev, learn_counter)
@@ -49,7 +60,7 @@ class ActiveStringMatchLearner(BaseEstimator):
                 break
             query_idx_prev, query_inst_prev = query_idx, query_inst
             self.learner.teach(query_inst.reshape(1, -1), y_new)
-            X_pool = np.delete(X_pool, query_idx, axis=0)
+            sample_combinations_array = np.delete(sample_combinations_array, query_idx, axis=0)
             self.parameters.append(self._get_lr_params())
             learn_counter += 1
 

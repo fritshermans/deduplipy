@@ -13,6 +13,8 @@ class StringMatcher(BaseEstimator):
             StandardScaler(),
             LogisticRegression(class_weight='balanced')
         )
+        # force the instance to be fitted such that one can predict during active learning before the model is fitted
+        self._fitted = True
 
     def _similarities(self, X):
         return np.asarray([[ratio(x[0], x[1]),
@@ -21,9 +23,13 @@ class StringMatcher(BaseEstimator):
                             token_sort_ratio(x[0], x[1])] for x in X])
 
     def fit(self, X, y):
-        similarities = self._similarities(X)
-        self.classifier.fit(similarities, y)
-        return self
+        # force the instance not to fit if there is only one class in y, needed for the first steps in active learning
+        if len(set(y))==1:
+            return self
+        else:
+            similarities = self._similarities(X)
+            self.classifier.fit(similarities, y)
+            return self
 
     def predict(self, X):
         similarities = self._similarities(X)

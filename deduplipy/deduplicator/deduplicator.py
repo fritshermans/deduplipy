@@ -4,17 +4,15 @@ from deduplipy.blocking.blocking import Blocking
 
 
 class Deduplicator:
-    def __init__(self, X_initial, y_initial, col_name, n_queries, rules=None):
-        self.X_initial = X_initial
-        self.y_initial = y_initial
+    def __init__(self, col_name, n_queries, rules=None):
         self.col_name = col_name
         self.n_queries = n_queries
         self.rules = rules
-        self.myActiveLearner = ActiveStringMatchLearner(X_initial, y_initial, n_queries=self.n_queries)
+        self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col=self.col_name)
         self.myBlocker = Blocking(self.col_name, rules)
 
-    def fit(self, X_pool):
-        self.myActiveLearner.fit(X_pool)
+    def fit(self, X):
+        self.myActiveLearner.fit(X)
         self.myBlocker.fit(self.myActiveLearner.learner.X_training, self.myActiveLearner.learner.y_training)
         return self
 
