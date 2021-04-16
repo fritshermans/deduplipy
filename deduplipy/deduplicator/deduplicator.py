@@ -22,5 +22,5 @@ class Deduplicator:
             scored_pairs_table[[f'{self.col_name}_1', f'{self.col_name}_2']].values)[:, 1]
         scored_pairs_table.loc[
             scored_pairs_table[f'{self.col_name}_1'] == scored_pairs_table[f'{self.col_name}_2'], 'score'] = 1
-        df_clusters = hierarchical_clustering(scored_pairs_table)
+        df_clusters = hierarchical_clustering(scored_pairs_table, col_name=self.col_name)
         return df_clusters
