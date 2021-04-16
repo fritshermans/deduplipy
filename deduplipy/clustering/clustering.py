@@ -4,10 +4,10 @@ from scipy.cluster.hierarchy import linkage, fcluster
 import scipy.spatial.distance as ssd
 
 
-def hierarchical_clustering(scored_pairs_table, cluster_threshold=0.5):
+def hierarchical_clustering(scored_pairs_table, col_name, cluster_threshold=0.5):
     graph = nx.Graph()
     for j, row in scored_pairs_table.iterrows():
-        graph.add_edge(row['col_1'], row['col_2'], weight=row['score'])
+        graph.add_edge(row[f'{col_name}_1'], row[f'{col_name}_2'], weight=row['score'])
 
     components = nx.connected_components(graph)
 
