@@ -17,9 +17,10 @@ class Deduplicator:
         return self
 
     def predict(self, X):
-        scored_pairs_table = self.myBlocker.transform(X[:, 0])
+        scored_pairs_table = self.myBlocker.transform(X)
         scored_pairs_table['score'] = self.myActiveLearner.predict_proba(
             scored_pairs_table[[f'{self.col_name}_1', f'{self.col_name}_2']].values)[:, 1]
-        scored_pairs_table.loc[scored_pairs_table.col_1 == scored_pairs_table.col_2, 'score'] = 1
+        scored_pairs_table.loc[
+            scored_pairs_table[f'{self.col_name}_1'] == scored_pairs_table[f'{self.col_name}_2'], 'score'] = 1
         df_clusters = hierarchical_clustering(scored_pairs_table)
         return df_clusters
