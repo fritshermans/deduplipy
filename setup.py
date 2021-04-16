@@ -6,6 +6,7 @@ base_packages = [
     'scipy',
     'scikit-learn',
     'networkx',
+    'python-Levenshtein',
     'fuzzywuzzy',
     'modAL'
 ]
