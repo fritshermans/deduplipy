@@ -24,7 +24,7 @@ class StringMatcher(BaseEstimator):
 
     def fit(self, X, y):
         # force the instance not to fit if there is only one class in y, needed for the first steps in active learning
-        if len(set(y))==1:
+        if len(set(y)) == 1:
             return self
         else:
             similarities = self._similarities(X)
