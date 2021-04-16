@@ -11,3 +11,4 @@ if __name__ == "__main__":
     myDedupliPy = Deduplicator('name_address', 10)
 
     myDedupliPy.fit(df_train)
+    print(myDedupliPy.predict(df_train))
