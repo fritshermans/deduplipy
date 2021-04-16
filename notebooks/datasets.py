@@ -51,6 +51,7 @@ def load_stoxx50(return_pairs=False):
 def load_chicago_childcare(return_pairs=False):
     df = pd.read_csv('data/csv_example_input_with_true_ids.csv')
     df['name_address'] = df['Site name'] + " " + df['Address']
+    df['name_address'] = df['name_address'].str.lower()
     if return_pairs:
         size = 10_000
 
