@@ -10,7 +10,7 @@ class Deduplicator:
         self.rules = rules
         self.cache_tables = cache_tables
         self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col=self.col_name)
-        self.myBlocker = Blocking(self.col_name, rules)
+        self.myBlocker = Blocking(self.col_name, rules, cache_tables=self.cache_tables)
 
     def fit(self, X):
         self.myActiveLearner.fit(X)
