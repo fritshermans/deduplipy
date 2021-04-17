@@ -17,12 +17,13 @@ class Deduplicator:
         self.myBlocker.fit(self.myActiveLearner.learner.X_training, self.myActiveLearner.learner.y_training)
         return self
 
-    def predict(self, X):
+    def predict(self, X, score_threshold=0.1):
         scored_pairs_table = self.myBlocker.transform(X)
         scored_pairs_table['score'] = self.myActiveLearner.predict_proba(
             scored_pairs_table[[f'{self.col_name}_1', f'{self.col_name}_2']].values)[:, 1]
         scored_pairs_table.loc[
             scored_pairs_table[f'{self.col_name}_1'] == scored_pairs_table[f'{self.col_name}_2'], 'score'] = 1
+        scored_pairs_table = scored_pairs_table[scored_pairs_table['score']>=score_threshold]
         if self.cache_tables:
             scored_pairs_table.to_csv('scored_pairs_table.csv')
         df_clusters = hierarchical_clustering(scored_pairs_table, col_name=self.col_name)
