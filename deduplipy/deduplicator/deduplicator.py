@@ -4,10 +4,11 @@ from deduplipy.blocking.blocking import Blocking
 
 
 class Deduplicator:
-    def __init__(self, col_name, n_queries, rules=None):
+    def __init__(self, col_name, n_queries, rules=None, cache_tables=False):
         self.col_name = col_name
         self.n_queries = n_queries
         self.rules = rules
+        self.cache_tables = cache_tables
         self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col=self.col_name)
         self.myBlocker = Blocking(self.col_name, rules)
 
@@ -22,5 +23,7 @@ class Deduplicator:
             scored_pairs_table[[f'{self.col_name}_1', f'{self.col_name}_2']].values)[:, 1]
         scored_pairs_table.loc[
             scored_pairs_table[f'{self.col_name}_1'] == scored_pairs_table[f'{self.col_name}_2'], 'score'] = 1
+        if self.cache_tables:
+            scored_pairs_table.to_csv('scored_pairs_table.csv')
         df_clusters = hierarchical_clustering(scored_pairs_table, col_name=self.col_name)
         return df_clusters

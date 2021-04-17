@@ -6,11 +6,12 @@ from deduplipy.blocking.blocking_rules import *
 
 
 class Blocking(BaseEstimator):
-    def __init__(self, col_name, rules=None):
+    def __init__(self, col_name, rules=None, cache_tables=False):
         self.col_name = col_name
         self.rules = rules
         if not self.rules:
             self.rules = all_rules
+        self.cache_tables = cache_tables
 
     def fit(self, X, y):
         df_training = pd.DataFrame(X, columns=[f'{self.col_name}_1', f'{self.col_name}_2'])
@@ -55,4 +56,6 @@ class Blocking(BaseEstimator):
         X_fingerprinted = self._fingerprint(X)
         pairs_table = self._create_pairs_table(X_fingerprinted)
         pairs_table = pairs_table.drop_duplicates(subset=[f'{self.col_name}_1', f'{self.col_name}_2'])
+        if self.cache_tables:
+            pairs_table.to_csv('pairs_table.csv')
         return pairs_table
