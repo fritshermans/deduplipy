@@ -91,6 +91,13 @@ class ActiveStringMatchLearner(BaseEstimator):
                     break
             learn_counter += 1
 
+        # print score histogram
+        probas = self.learner.predict_proba(sample_combinations_array)[:,1]
+        count, division = np.histogram(probas, bins=np.arange(0,1.01,0.05))
+        hist = pd.DataFrame({'count':count, 'division':division[1:]})
+        print(hist)
+
+
     def predict(self, X):
         return self.learner.predict(X)
 
