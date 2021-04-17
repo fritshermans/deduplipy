@@ -14,17 +14,28 @@ class Deduplicator:
 
     def fit(self, X):
         self.myActiveLearner.fit(X)
+        print('active learning finished')
         self.myBlocker.fit(self.myActiveLearner.learner.X_training, self.myActiveLearner.learner.y_training)
+        print('blocking rules found')
+        print(self.myBlocker.rules_selected)
         return self
 
     def predict(self, X, score_threshold=0.1):
+        print('blocking started')
         scored_pairs_table = self.myBlocker.transform(X)
+        print('blocking finished')
+        print(f'Nr of pairs: {len(scored_pairs_table)}')
+        print('scoring started')
         scored_pairs_table['score'] = self.myActiveLearner.predict_proba(
             scored_pairs_table[[f'{self.col_name}_1', f'{self.col_name}_2']].values)[:, 1]
         scored_pairs_table.loc[
             scored_pairs_table[f'{self.col_name}_1'] == scored_pairs_table[f'{self.col_name}_2'], 'score'] = 1
+        print("scoring finished")
         scored_pairs_table = scored_pairs_table[scored_pairs_table['score']>=score_threshold]
+        print(f'Nr of filtered pairs: {len(scored_pairs_table)}')
         if self.cache_tables:
             scored_pairs_table.to_csv('scored_pairs_table.csv')
+        print('Clustering started')
         df_clusters = hierarchical_clustering(scored_pairs_table, col_name=self.col_name)
+        print('Clustering finished')
         return df_clusters
