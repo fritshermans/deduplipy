@@ -40,12 +40,23 @@ class ActiveStringMatchLearner(BaseEstimator):
 
     def fit(self, X, y=None, n_samples=1_000):
         X_pool = X.copy()
+        X_pool['row_number'] = np.arange(len(X_pool))
         df_sample = X_pool.sample(n=int(n_samples ** 0.5))
+
         sample_combinations = pd.DataFrame(
-            list(product(df_sample[self.col].values.tolist(), df_sample[self.col].values.tolist())),
+            list(product(df_sample[[self.col, 'row_number']].values.tolist(),
+                         df_sample[[self.col, 'row_number']].values.tolist())),
             columns=[f'{self.col}_1', f'{self.col}_2'])
-        sample_combinations = sample_combinations.drop_duplicates()
-        sample_combinations_array = sample_combinations.values
+
+        for nr in [1, 2]:
+            sample_combinations[f'row_number_{nr}'] = sample_combinations[f'{self.col}_{nr}'].str[1]
+            sample_combinations[f'{self.col}_{nr}'] = sample_combinations[f'{self.col}_{nr}'].str[0]
+
+        sample_combinations.sort_values(['row_number_1', 'row_number_2'], inplace=True)
+
+        sample_combinations = sample_combinations[
+            sample_combinations['row_number_1'] <= sample_combinations['row_number_2']]
+        sample_combinations_array = sample_combinations[[f'{self.col}_1', f'{self.col}_2']].values
 
         self.parameters = [self._get_lr_params()]
 
