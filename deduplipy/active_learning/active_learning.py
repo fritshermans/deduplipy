@@ -30,11 +30,11 @@ class ActiveStringMatchLearner(BaseEstimator):
         print("Is this a match?")
         print('->', query_inst[0][0])
         print('->', query_inst[0][1])
-        user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f'])
+        user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f', 'u'])
         # replace 'y' and 'n' with '1' and '0' to make them valid y labels
         user_input = user_input.replace('y', '1').replace('n', '0')
-        # replace 'p' (previous) with '-1' and 'f' (finished) with '9'
-        user_input = user_input.replace('p', '-1').replace('f', '9')
+        # replace 'p' (previous) by '-1', 'f' (finished) by '9', and 'u' (unsure) by '8'
+        user_input = user_input.replace('p', '-1').replace('f', '9').replace('u', '8')
         y_new = np.array([int(user_input)], dtype=int)
         return y_new
 
@@ -54,12 +54,13 @@ class ActiveStringMatchLearner(BaseEstimator):
         for i in range(self.n_queries):
             query_idx, query_inst = self.learner.query(sample_combinations_array)
             y_new = self._get_active_learning_input(query_inst, learn_counter)
-            if y_new == -1:
+            if y_new == -1:  # use previous (input is 'p')
                 y_new = self._get_active_learning_input(query_inst_prev, learn_counter)
-            elif y_new == 9:
+            elif y_new == 9:  # finish labelling (input is 'f')
                 break
             query_idx_prev, query_inst_prev = query_idx, query_inst
-            self.learner.teach(query_inst.reshape(1, -1), y_new)
+            if y_new != 8:  # skip unsure case (input is 'u')
+                self.learner.teach(query_inst.reshape(1, -1), y_new)
             sample_combinations_array = np.delete(sample_combinations_array, query_idx, axis=0)
             self.parameters.append(self._get_lr_params())
             learn_counter += 1
