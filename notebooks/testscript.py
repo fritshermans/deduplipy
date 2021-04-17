@@ -11,4 +11,6 @@ if __name__ == "__main__":
     myDedupliPy = Deduplicator('name_address', 10, cache_tables=True)
 
     myDedupliPy.fit(df_train)
-    print(myDedupliPy.predict(df_train))
+    res = myDedupliPy.predict(df_train)
+    res.to_csv('res.csv')
+    print(res)
