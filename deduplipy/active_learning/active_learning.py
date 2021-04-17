@@ -11,9 +11,10 @@ from deduplipy.active_learning.utils_active_learning import input_assert
 
 
 class ActiveStringMatchLearner(BaseEstimator):
-    def __init__(self, n_queries, col):
+    def __init__(self, n_queries, col, coef_diff_threshold=0.01):
         self.n_queries = n_queries
         self.col = col
+        self.coef_diff_threshold = coef_diff_threshold
         self.learner = ActiveLearner(
             estimator=StringMatcher(),
             query_strategy=uncertainty_sampling,
@@ -22,6 +23,15 @@ class ActiveStringMatchLearner(BaseEstimator):
     def _get_lr_params(self):
         if hasattr(self.learner.estimator.classifier.named_steps['logisticregression'], 'coef_'):
             return self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
+        else:
+            return None
+
+    def _get_largest_coef_diff(self):
+        parameters = [x for x in self.parameters if isinstance(x, np.ndarray)]
+        if len(parameters) >= 2:
+            parameters_np = np.array(parameters)
+            diff = np.diff(parameters_np, axis=0)
+            return abs(np.diff(parameters_np, axis=0)[-1]).max()
         else:
             return None
 
@@ -74,6 +84,11 @@ class ActiveStringMatchLearner(BaseEstimator):
                 self.learner.teach(query_inst.reshape(1, -1), y_new)
             sample_combinations_array = np.delete(sample_combinations_array, query_idx, axis=0)
             self.parameters.append(self._get_lr_params())
+            largest_coef_diff = self._get_largest_coef_diff()
+            print(largest_coef_diff)
+            if largest_coef_diff:
+                if largest_coef_diff < self.coef_diff_threshold:
+                    break
             learn_counter += 1
 
     def predict(self, X):
