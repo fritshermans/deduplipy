@@ -4,13 +4,12 @@ import pandas as pd
 import numpy as np
 from modAL.models import ActiveLearner
 from modAL.uncertainty import uncertainty_sampling
-from sklearn.base import BaseEstimator
 
 from deduplipy.string_matcher.string_matcher import StringMatcher
 from deduplipy.active_learning.utils_active_learning import input_assert
 
 
-class ActiveStringMatchLearner(BaseEstimator):
+class ActiveStringMatchLearner:
     def __init__(self, n_queries, col, coef_diff_threshold=0.01):
         self.n_queries = n_queries
         self.col = col
