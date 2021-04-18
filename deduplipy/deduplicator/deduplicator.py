@@ -4,7 +4,7 @@ from deduplipy.blocking.blocking import Blocking
 
 
 class Deduplicator:
-    def __init__(self, col_name, n_queries, rules=None, cache_tables=False):
+    def __init__(self, col_name, n_queries=999, rules=None, cache_tables=False):
         self.col_name = col_name
         self.n_queries = n_queries
         self.rules = rules
