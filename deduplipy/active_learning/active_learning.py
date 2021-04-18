@@ -29,7 +29,6 @@ class ActiveStringMatchLearner:
         parameters = [x for x in self.parameters if isinstance(x, np.ndarray)]
         if len(parameters) >= 2:
             parameters_np = np.array(parameters)
-            diff = np.diff(parameters_np, axis=0)
             return abs(np.diff(parameters_np, axis=0)[-1]).max()
         else:
             return None
