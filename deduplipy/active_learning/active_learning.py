@@ -11,6 +11,15 @@ from deduplipy.active_learning.utils_active_learning import input_assert
 
 class ActiveStringMatchLearner:
     def __init__(self, n_queries, col, coef_diff_threshold=0.01):
+        """
+        Class to train a string matching model using active learning.
+
+        Args:
+            n_queries: number of queries to provide during active learning
+            col: column name to use for matching
+            coef_diff_threshold: threshold on largest update difference in logistic regression parameters, when this
+                                threshold is breached, a message is presented that the model had converged
+        """
         self.n_queries = n_queries
         self.col = col
         self.coef_diff_threshold = coef_diff_threshold
@@ -20,6 +29,12 @@ class ActiveStringMatchLearner:
         )
 
     def _get_lr_params(self):
+        """
+        Returns logistic regression coefficients if the LR model is trained, otherwise `None` is returned
+
+        Returns: Logistic regression parameters
+
+        """
         if hasattr(self.learner.estimator.classifier.named_steps['logisticregression'], 'coef_'):
             return self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
         else:
