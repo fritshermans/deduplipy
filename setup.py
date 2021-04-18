@@ -20,7 +20,7 @@ dev_packages = base_packages + util_packages
 
 setup(name='DedupliPy',
       version='0.1',
-      packages=find_packages('deduplipy'),
+      packages=find_packages('deduplipy', exclude=['notebooks']),
       package_dir={'': 'deduplipy'},
       install_requires=base_packages,
       extras_require={
