@@ -37,7 +37,7 @@ class ActiveStringMatchLearner:
     def _get_active_learning_input(self, query_inst, learn_counter):
         params = self._get_lr_params()
         print(f'\nNr. {learn_counter + 1}', params if isinstance(params, np.ndarray) else '')
-        print("Is this a match?")
+        print("Is this a match? (y)es, (n)o, (p)revious, (u)nsure, (f)inish")
         print('->', query_inst[0][0])
         print('->', query_inst[0][1])
         user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f', 'u'])
