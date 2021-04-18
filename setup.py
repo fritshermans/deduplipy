@@ -8,7 +8,8 @@ base_packages = [
     'networkx',
     'python-Levenshtein',
     'fuzzywuzzy',
-    'modAL'
+    'modAL',
+    'openpyxl'
 ]
 
 util_packages = [

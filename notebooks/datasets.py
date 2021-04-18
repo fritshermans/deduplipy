@@ -26,7 +26,7 @@ def load_hotel_rooms(return_pairs=False):
 
 
 def load_stoxx50(return_pairs=False):
-    df = pd.read_excel('data/stoxx50_extended_with_id.xlsx')
+    df = pd.read_excel('data/stoxx50_extended_with_id.xlsx', engine='openpyxl')
     if return_pairs:
         l = list(product(df.values.tolist(), df.values.tolist()))
         df_all = pd.DataFrame(list(map(lambda x: sum(x, []), l)),
