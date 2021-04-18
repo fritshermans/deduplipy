@@ -35,7 +35,7 @@ class ActiveStringMatchLearner:
             return None
 
     def _get_active_learning_input(self, query_inst, learn_counter):
-        print(f'\n{learn_counter + 1}/{self.n_queries}', self._get_lr_params())
+        print(f'\nNr. {learn_counter + 1}', self._get_lr_params())
         print("Is this a match?")
         print('->', query_inst[0][0])
         print('->', query_inst[0][1])
