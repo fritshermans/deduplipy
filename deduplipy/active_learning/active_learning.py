@@ -85,8 +85,8 @@ class ActiveStringMatchLearner:
             sample_combinations_array = np.delete(sample_combinations_array, query_idx, axis=0)
             self.parameters.append(self._get_lr_params())
             largest_coef_diff = self._get_largest_coef_diff()
-            print(largest_coef_diff)
             if largest_coef_diff:
+                print(largest_coef_diff)
                 if largest_coef_diff < self.coef_diff_threshold:
                     break
             learn_counter += 1
