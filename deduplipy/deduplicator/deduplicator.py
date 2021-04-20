@@ -1,3 +1,8 @@
+from itertools import product
+
+import numpy as np
+import pandas as pd
+
 from deduplipy.clustering.clustering import hierarchical_clustering
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking.blocking import Blocking
@@ -32,17 +37,51 @@ class Deduplicator:
         self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col=self.col_name)
         self.myBlocker = Blocking(self.col_name, rules, cache_tables=self.cache_tables)
 
-    def fit(self, X):
+    def _create_pairs_table(self, X, n_samples):
+        """
+        Create sample of pairs
+
+        Args:
+            X: Pandas dataframe containing data to be deduplicated
+            n_samples: number of sample pairs to be created
+
+        Returns:
+            Pandas dataframe containing pairs
+
+        """
+        X_pool = X.copy()
+        X_pool['row_number'] = np.arange(len(X_pool))
+        df_sample = X_pool.sample(n=int(n_samples ** 0.5))
+
+        sample_combinations = pd.DataFrame(
+            list(product(df_sample[[self.col_name, 'row_number']].values.tolist(),
+                         df_sample[[self.col_name, 'row_number']].values.tolist())),
+            columns=[f'{self.col_name}_1', f'{self.col_name}_2'])
+
+        for nr in [1, 2]:
+            sample_combinations[f'row_number_{nr}'] = sample_combinations[f'{self.col_name}_{nr}'].str[1]
+            sample_combinations[f'{self.col_name}_{nr}'] = sample_combinations[f'{self.col_name}_{nr}'].str[0]
+
+        sample_combinations.sort_values(['row_number_1', 'row_number_2'], inplace=True)
+
+        sample_combinations = sample_combinations[
+            sample_combinations['row_number_1'] <= sample_combinations['row_number_2']]
+        sample_combinations_array = sample_combinations[[f'{self.col_name}_1', f'{self.col_name}_2']].values
+        return sample_combinations_array
+
+    def fit(self, X, n_samples=1_000):
         """
         Fit the deduplicator instance
 
         Args:
             X: Pandas dataframe to be used for fitting
+            n_samples: number of pairs to be created for active learning
 
         Returns: trained deduplicator instance
 
         """
-        self.myActiveLearner.fit(X)
+        sample_combinations_array = self._create_pairs_table(X, n_samples)
+        self.myActiveLearner.fit(sample_combinations_array)
         print('active learning finished')
         self.myBlocker.fit(self.myActiveLearner.learner.X_training, self.myActiveLearner.learner.y_training)
         print('blocking rules found')
