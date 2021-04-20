@@ -1,11 +1,14 @@
+import os
 from itertools import product
+from pkg_resources import resource_filename
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
 def load_hotel_rooms(return_pairs=False):
-    df = pd.read_csv('data/room_type.csv').rename(columns={'Expedia': 'expedia', 'Booking.com': 'booking'})
+    file_path = resource_filename('deduplipy', os.path.join('data', 'room_type.csv'))
+    df = pd.read_csv(file_path).rename(columns={'Expedia': 'expedia', 'Booking.com': 'booking'})
     expedia = df.expedia.unique()
     booking = df.booking.unique()
     if return_pairs:
@@ -26,7 +29,8 @@ def load_hotel_rooms(return_pairs=False):
 
 
 def load_stoxx50(return_pairs=False):
-    df = pd.read_excel('data/stoxx50_extended_with_id.xlsx', engine='openpyxl')
+    file_path = resource_filename('deduplipy', os.path.join('data', 'stoxx50_extended_with_id.xlsx'))
+    df = pd.read_excel(file_path, engine='openpyxl')
     if return_pairs:
         l = list(product(df.values.tolist(), df.values.tolist()))
         df_all = pd.DataFrame(list(map(lambda x: sum(x, []), l)),
@@ -49,7 +53,8 @@ def load_stoxx50(return_pairs=False):
 
 
 def load_chicago_childcare(return_pairs=False):
-    df = pd.read_csv('data/csv_example_input_with_true_ids.csv')
+    file_path = resource_filename('deduplipy', os.path.join('data', 'csv_example_input_with_true_ids.csv'))
+    df = pd.read_csv(file_path)
     df['name_address'] = df['Site name'] + " " + df['Address']
     df['name_address'] = (df['name_address'].str.lower()
                           .str.replace(',', ' ')
