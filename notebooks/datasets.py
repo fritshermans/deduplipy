@@ -51,8 +51,14 @@ def load_stoxx50(return_pairs=False):
 def load_chicago_childcare(return_pairs=False):
     df = pd.read_csv('data/csv_example_input_with_true_ids.csv')
     df['name_address'] = df['Site name'] + " " + df['Address']
-    df['name_address'] = df['name_address'].str.lower().str.strip()
-    df['name_address'] = df['name_address'].str.replace(',', ' ').replace(r'\s+', ' ')
+    df['name_address'] = (df['name_address'].str.lower()
+                          .str.replace(',', ' ')
+                          .str.replace('\n', ' ')
+                          .str.replace('.', ' ')
+                          .str.replace('"', ' ')
+                          .str.replace(r'\s+', ' ')
+                          .str.strip()
+                          )
     df = df.drop_duplicates(subset=['name_address'])
     if return_pairs:
         size = 10_000
@@ -60,11 +66,14 @@ def load_chicago_childcare(return_pairs=False):
         df = df[['True Id', 'name_address']]
 
         df_no_match = pd.DataFrame(list(
-            product(df.iloc[:100][['True Id', 'name_address']].values, df.iloc[:100][['True Id', 'name_address']].values)))
+            product(df.iloc[:100][['True Id', 'name_address']].values,
+                    df.iloc[:100][['True Id', 'name_address']].values)))
         df_no_match = pd.concat(
-            (df_no_match, df_no_match[0].apply(pd.Series).rename(columns={0: 'True Id 1', 1: 'name_address_1'})), axis=1)
+            (df_no_match, df_no_match[0].apply(pd.Series).rename(columns={0: 'True Id 1', 1: 'name_address_1'})),
+            axis=1)
         df_no_match = pd.concat(
-            (df_no_match, df_no_match[1].apply(pd.Series).rename(columns={0: 'True Id 2', 1: 'name_address_2'})), axis=1)
+            (df_no_match, df_no_match[1].apply(pd.Series).rename(columns={0: 'True Id 2', 1: 'name_address_2'})),
+            axis=1)
         df_no_match.drop(columns=[0, 1], inplace=True)
         df_no_match['match'] = df_no_match.apply(lambda row: int(row['True Id 1'] == row['True Id 2']), axis=1)
         df_no_match = df_no_match[['name_address_1', 'name_address_2', 'match']]
