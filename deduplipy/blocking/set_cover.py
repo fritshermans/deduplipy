@@ -1,7 +1,7 @@
 import heapq
 
 
-def greedy_set_cover(subsets, parent_set):
+def greedy_set_cover(subsets, parent_set, recall=1.0):
     if not isinstance(parent_set, set):
         parent_set = set(parent_set)
     subsets = [set(x) if not isinstance(x, set) else x for x in subsets]
@@ -39,6 +39,10 @@ def greedy_set_cover(subsets, parent_set):
         add_set = best[2]
         results.append(add_set)
         result_set.update(add_set)
+        coverage = len(result_set.intersection(parent_set)) / len(parent_set)
+        if coverage >= recall:
+            print(f'recall threshold reached, recall = {coverage}')
+            return results
         # subsets that were not the best get put back on the heap for next time.
         while unused:
             heapq.heappush(heap, unused.pop())

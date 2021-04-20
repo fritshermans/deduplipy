@@ -6,11 +6,12 @@ from deduplipy.blocking.blocking_rules import *
 
 
 class Blocking(BaseEstimator):
-    def __init__(self, col_name, rules=None, cache_tables=False):
+    def __init__(self, col_name, rules=None, recall=1.0, cache_tables=False):
         self.col_name = col_name
         self.rules = rules
         if not self.rules:
             self.rules = all_rules
+        self.recall = recall
         self.cache_tables = cache_tables
 
     def fit(self, X, y):
@@ -33,7 +34,7 @@ class Blocking(BaseEstimator):
         self.matches = df_training[df_training.match == 1].index.tolist()
         self.universe = set(self.matches)
 
-        self.cover = greedy_set_cover(self.subsets, self.universe)
+        self.cover = greedy_set_cover(self.subsets, self.universe, self.recall)
 
         self.rules_selected = []
         for rule_name, rule_set in rule_sets.items():

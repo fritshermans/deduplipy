@@ -9,7 +9,7 @@ from deduplipy.blocking.blocking import Blocking
 
 
 class Deduplicator:
-    def __init__(self, col_name, n_queries=999, rules=None, cache_tables=False):
+    def __init__(self, col_name, n_queries=999, rules=None, recall=1.0, cache_tables=False):
         """
         Deduplicate entries in Pandas dataframe using column with name `col_name`. Training takes place during a short
         interactive session (interactive learning).
@@ -23,6 +23,7 @@ class Deduplicator:
         The result is a dataframe with a new column `cluster_id`. Rows with the same `cluster_id` are deduplicated.
 
         Args:
+            recall:
             col_name: name of column to use for deduplication
             n_queries: max number of queries to do during active learning, early stopping will be advised when
                         classifier converged
@@ -33,9 +34,10 @@ class Deduplicator:
         self.col_name = col_name
         self.n_queries = n_queries
         self.rules = rules
+        self.recall = recall
         self.cache_tables = cache_tables
         self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col=self.col_name)
-        self.myBlocker = Blocking(self.col_name, rules, cache_tables=self.cache_tables)
+        self.myBlocker = Blocking(self.col_name, rules, cache_tables=self.cache_tables, recall=self.recall)
 
     def _create_pairs_table(self, X, n_samples):
         """
