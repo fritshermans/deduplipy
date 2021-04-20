@@ -41,6 +41,14 @@ class ActiveStringMatchLearner:
             return None
 
     def _get_largest_coef_diff(self):
+        """
+        Calculates the differences per logistic regression parameter from between different fits. The largest difference
+        across the parameters in the last fit is returned. The aim of this function is to suggest early stopping of
+        active learning.
+
+        Returns: largest logistic regression coefficient update in last fit
+
+        """
         parameters = [x for x in self.parameters if isinstance(x, np.ndarray)]
         if len(parameters) >= 2:
             parameters_np = np.array(parameters)
@@ -49,6 +57,19 @@ class ActiveStringMatchLearner:
             return None
 
     def _get_active_learning_input(self, query_inst, learn_counter):
+        """
+        Obtain user input for a query during active learning.
+
+        Args:
+            query_inst: query as provided by the ActiveLearner instance
+            learn_counter: integer counting the number of the query
+
+        Returns: label of user input 0 or 1
+                    or -1 to go to previous
+                    or 9 to finish
+                    or 8 to skip the query
+
+        """
         params = self._get_lr_params()
         print(f'\nNr. {learn_counter + 1}', params if isinstance(params, np.ndarray) else '')
         print("Is this a match? (y)es, (n)o, (p)revious, (u)nsure, (f)inish")
@@ -112,7 +133,25 @@ class ActiveStringMatchLearner:
         print(hist)
 
     def predict(self, X):
+        """
+        Predict on new data whether the pairs are a match or not
+
+        Args:
+            X: Pandas dataframe to predict on
+
+        Returns: predictions
+
+        """
         return self.learner.predict(X)
 
     def predict_proba(self, X):
+        """
+        Predict probabilities on new data whether the pairs are a match or not
+
+        Args:
+            X: Pandas dataframe to predict on
+
+        Returns: match probabilities
+
+        """
         return self.learner.predict_proba(X)
