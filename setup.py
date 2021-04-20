@@ -17,7 +17,13 @@ util_packages = [
     "jupyterlab",
 ]
 
-dev_packages = base_packages + util_packages
+docs_packages = [
+    "sphinx==3.5.4",
+    "nbsphinx",
+    'sphinx_rtd_theme'
+]
+
+dev_packages = base_packages + util_packages + docs_packages
 
 setup(name='DedupliPy',
       version='0.1',
@@ -26,5 +32,6 @@ setup(name='DedupliPy',
       extras_require={
           "base": base_packages,
           "dev": dev_packages,
+          "docs": docs_packages,
       },
       )

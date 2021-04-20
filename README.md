@@ -20,3 +20,9 @@ Install to contribute
 python -m pip install -e ".[dev]"
 python setup.py develop
 ```
+
+Create documentation
+
+```
+sphinx-build -b html source build
+```
