@@ -81,7 +81,13 @@ class ActiveStringMatchLearner:
         y_new = np.array([int(user_input)], dtype=int)
         return y_new
 
-    def fit(self, X, y=None):
+    def fit(self, X):
+        """
+        Fit ActiveStringMatchLearner instance on pairs of strings
+
+        Args:
+            X: Pandas dataframe containing pairs of strings
+        """
         self.parameters = [self._get_lr_params()]
 
         query_idx_prev, query_inst_prev = None, None
