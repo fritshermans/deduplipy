@@ -24,5 +24,5 @@ python setup.py develop
 Create documentation
 
 ```
-sphinx-build -b html source build
+sphinx-build -b html docs/source docs/build
 ```
