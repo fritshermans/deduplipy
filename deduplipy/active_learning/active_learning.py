@@ -8,7 +8,7 @@ from deduplipy.active_learning.utils_active_learning import input_assert
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, n_queries, col, coef_diff_threshold=0.01):
+    def __init__(self, n_queries, col, coef_diff_threshold=0.05):
         """
         Class to train a string matching model using active learning.
 
@@ -34,7 +34,10 @@ class ActiveStringMatchLearner:
 
         """
         if hasattr(self.learner.estimator.classifier.named_steps['logisticregression'], 'coef_'):
-            return self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
+            intercept = self.learner.estimator.classifier.named_steps['logisticregression'].intercept_[0]
+            coefs = self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
+            params = np.insert(coefs, 0, intercept)
+            return params
         else:
             return None
 
