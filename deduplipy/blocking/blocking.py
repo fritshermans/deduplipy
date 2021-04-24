@@ -7,6 +7,16 @@ from deduplipy.blocking.blocking_rules import *
 
 class Blocking(BaseEstimator):
     def __init__(self, col_name, rules=None, recall=1.0, cache_tables=False):
+        """
+        Class for fitting blocking rules and applying them on new pairs
+
+        Args:
+            col_name: column name on which blocking rules should be applied
+            rules: list of rules to test for blocking, if None, all available blocking rules are used
+            recall: minimum recall required
+            cache_tables: whether or not to save intermediate results
+
+        """
         self.col_name = col_name
         self.rules = rules
         if not self.rules:
@@ -15,6 +25,17 @@ class Blocking(BaseEstimator):
         self.cache_tables = cache_tables
 
     def fit(self, X, y):
+        """
+        Fit Blocking instance on data
+
+        Args:
+            X: array containing pairs
+            y: array containing whether pairs are a match or not
+
+        Returns:
+            fitted instance
+
+        """
         df_training = pd.DataFrame(X, columns=[f'{self.col_name}_1', f'{self.col_name}_2'])
         df_training['match'] = y
 
@@ -43,6 +64,16 @@ class Blocking(BaseEstimator):
         return self
 
     def _fingerprint(self, X):
+        """
+        Applies blocking rules to data and adds a column 'fingerprint' containing the blocking rules results
+
+        Args:
+            X: array containing column to apply blocking rules on
+
+        Returns:
+            Pandas dataframe containing a new column 'fingerprint' with the blocking rules results
+
+        """
         df = pd.DataFrame(X, columns=[self.col_name])
         for j, rule in enumerate(self.rules_selected):
             df[rule] = df[self.col_name].apply(lambda x: eval(rule)(x)) + f":{j}"
@@ -50,10 +81,29 @@ class Blocking(BaseEstimator):
         return df_melted
 
     def _create_pairs_table(self, X_fingerprinted):
+        """
+        Creates a pairs table based on the result of fingerprinting
+
+        Args:
+            X_fingerprinted: Pandas dataframe containing the finger printing result
+
+        Returns:
+            pairs table
+        """
         pairs_table = X_fingerprinted.merge(X_fingerprinted, on='fingerprint', suffixes=('_1', '_2'))
         return pairs_table
 
     def transform(self, X):
+        """
+        Applies blocking rules on new data
+
+        Args:
+            X: array containing data on which blocking rules should be applied
+
+        Returns:
+            Pandas dataframe containing blocking rules applied on new data
+
+        """
         X_fingerprinted = self._fingerprint(X)
         pairs_table = self._create_pairs_table(X_fingerprinted)
         pairs_table = pairs_table.drop_duplicates(subset=[f'{self.col_name}_1', f'{self.col_name}_2'])

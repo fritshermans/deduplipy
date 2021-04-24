@@ -2,6 +2,20 @@ import heapq
 
 
 def greedy_set_cover(subsets, parent_set, recall=1.0):
+    """
+    Greedy set cover algorithm, stops when recall threshold is reached
+
+    Args:
+        subsets: subsets that should cover the parent_set
+        parent_set: parent_set that should be covered by subsets
+        recall: minimum recall to reach
+
+    Returns:
+        list containing selection of rules that collectively span the parent_set
+
+    """
+    # algorithm obtained from stackoverflow post
+    # https://stackoverflow.com/questions/21973126/set-cover-or-hitting-set-numpy-least-element-combinations-to-make-up-full-set
     if not isinstance(parent_set, set):
         parent_set = set(parent_set)
     subsets = [set(x) if not isinstance(x, set) else x for x in subsets]
