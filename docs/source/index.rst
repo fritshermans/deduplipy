@@ -10,7 +10,7 @@ Welcome to DedupliPy's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   Quickstart.ipynb
+   Tutorial.ipynb
    api/modules
 
 
