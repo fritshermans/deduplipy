@@ -108,7 +108,7 @@ class ActiveStringMatchLearner:
             if largest_coef_diff:
                 print(largest_coef_diff)
                 if largest_coef_diff < self.coef_diff_threshold:
-                    print('Classifier converged, enter 'f' to stop training')
+                    print("Classifier converged, enter 'f' to stop training")
             learn_counter += 1
 
         # print score histogram
