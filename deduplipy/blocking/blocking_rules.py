@@ -12,35 +12,35 @@ def first_word(x):
     if len(x):
         return x.split()[0]
     else:
-        return ''
+        return None
 
 
 def first_two_words(x):
     if len(x):
         return " ".join(x.split()[:2])
     else:
-        return ''
+        return None
 
 
 def first_three_letters(x):
     if len(x):
         return x[:3]
     else:
-        return ''
+        return None
 
 
 def first_four_letters(x):
     if len(x):
         return x[:4]
     else:
-        return ''
+        return None
 
 
 def first_five_letters(x):
     if len(x):
         return x[:5]
     else:
-        return ''
+        return None
 
 
 def first_three_letters_no_space(x):
@@ -48,7 +48,7 @@ def first_three_letters_no_space(x):
     if len(x):
         return x[:3]
     else:
-        return ''
+        return None
 
 
 def first_four_letters_no_space(x):
@@ -56,7 +56,7 @@ def first_four_letters_no_space(x):
     if len(x):
         return x[:4]
     else:
-        return ''
+        return None
 
 
 def first_five_letters_no_space(x):
@@ -64,7 +64,7 @@ def first_five_letters_no_space(x):
     if len(x):
         return x[:5]
     else:
-        return ''
+        return None
 
 
 def sorted_integers(x):

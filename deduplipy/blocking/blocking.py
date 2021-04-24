@@ -76,8 +76,10 @@ class Blocking(BaseEstimator):
         """
         df = pd.DataFrame(X, columns=[self.col_name])
         for j, rule in enumerate(self.rules_selected):
-            df[rule] = df[self.col_name].apply(lambda x: eval(rule)(x)) + f":{j}"
+            df[rule] = df[self.col_name].apply(lambda x: eval(rule)(x))
+            df.loc[df[rule].notnull(), rule] = df[df[rule].notnull()][rule] + f":{j}"
         df_melted = df.melt(id_vars=self.col_name, value_name='fingerprint').drop(columns=['variable'])
+        df_melted.dropna(inplace=True)
         return df_melted
 
     def _create_pairs_table(self, X_fingerprinted):
