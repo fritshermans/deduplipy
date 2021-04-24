@@ -112,7 +112,7 @@ def load_data(kind='stoxx50', return_pairs=False):
         return_pairs: boolean indicating whether to return pairs or list of records
 
     Returns:
-        Pandas series containing experimentation dataset
+        Pandas dataframe containing experimentation dataset
     """
     if kind == 'stoxx50':
         return load_stoxx50(return_pairs)
