@@ -104,9 +104,15 @@ def load_chicago_childcare(return_pairs=False):
 
 def load_data(kind='stoxx50', return_pairs=False):
     """
-    `kind` can be 'stoxx50', 'hotel_rooms' or 'childcare'
-    :param kind:
-    :return:
+    Load data for experimentation. `kind` can be 'stoxx50', 'hotel_rooms' or 'childcare'. Function can return pairs
+    or just a list of records.
+
+    Args:
+        kind: 'stoxx50', 'hotel_rooms' or 'childcare'
+        return_pairs: boolean indicating whether to return pairs or list of records
+
+    Returns:
+        Pandas series containing experimentation dataset
     """
     if kind == 'stoxx50':
         return load_stoxx50(return_pairs)
