@@ -36,7 +36,7 @@ class Deduplicator:
         self.rules = rules
         self.recall = recall
         self.cache_tables = cache_tables
-        self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col=self.col_name)
+        self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col_name=self.col_name)
         self.myBlocker = Blocking(self.col_name, rules, cache_tables=self.cache_tables, recall=self.recall)
 
     def _create_pairs_table(self, X, n_samples):
