@@ -8,7 +8,8 @@ from sklearn.preprocessing import StandardScaler
 
 
 class StringMatcher(BaseEstimator):
-    def __init__(self):
+    def __init__(self, col_name):
+        self.col_name = col_name
         self.classifier = make_pipeline(
             StandardScaler(),
             LogisticRegression(class_weight='balanced')
@@ -17,10 +18,12 @@ class StringMatcher(BaseEstimator):
         self._fitted = True
 
     def _similarities(self, X):
-        return np.asarray([[ratio(x[0], x[1]),
-                            partial_ratio(x[0], x[1]),
-                            token_set_ratio(x[0], x[1]),
-                            token_sort_ratio(x[0], x[1])] for x in X])
+        similarities = X.apply(lambda row: (ratio(row[f'{self.col_name}_1'], row[f'{self.col_name}_2']),
+                                            partial_ratio(row[f'{self.col_name}_1'], row[f'{self.col_name}_2']),
+                                            token_set_ratio(row[f'{self.col_name}_1'], row[f'{self.col_name}_2']),
+                                            token_sort_ratio(row[f'{self.col_name}_1'], row[f'{self.col_name}_2'])),
+                               axis=1)
+        return np.array(similarities.tolist())
 
     def fit(self, X, y):
         # force the instance not to fit if there is only one class in y, needed for the first steps in active learning

@@ -22,7 +22,7 @@ class ActiveStringMatchLearner:
         self.col_name = col_name
         self.coef_diff_threshold = coef_diff_threshold
         self.learner = ActiveLearner(
-            estimator=StringMatcher(),
+            estimator=StringMatcher(self.col_name),
             query_strategy=uncertainty_sampling,
         )
 
@@ -74,8 +74,8 @@ class ActiveStringMatchLearner:
         params = self._get_lr_params()
         print(f'\nNr. {learn_counter + 1}', params if isinstance(params, np.ndarray) else '')
         print("Is this a match? (y)es, (n)o, (p)revious, (u)nsure, (f)inish")
-        print('->', query_inst[0][0])
-        print('->', query_inst[0][1])
+        print('->', query_inst[f'{self.col_name}_1'].iloc[0])
+        print('->', query_inst[f'{self.col_name}_2'].iloc[0])
         user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f', 'u'])
         # replace 'y' and 'n' with '1' and '0' to make them valid y labels
         user_input = user_input.replace('y', '1').replace('n', '0')
@@ -104,8 +104,8 @@ class ActiveStringMatchLearner:
                 break
             query_idx_prev, query_inst_prev = query_idx, query_inst
             if y_new != 8:  # skip unsure case (input is 'u')
-                self.learner.teach(query_inst.reshape(1, -1), y_new)
-            X = np.delete(X, query_idx, axis=0)
+                self.learner.teach(query_inst, y_new)
+            X = X.drop(query_idx).reset_index(drop=True)
             self.parameters.append(self._get_lr_params())
             largest_coef_diff = self._get_largest_coef_diff()
             if largest_coef_diff:
