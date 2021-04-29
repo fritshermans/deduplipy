@@ -3,6 +3,8 @@ from itertools import product
 import numpy as np
 import pandas as pd
 
+from fuzzywuzzy.fuzz import ratio, token_set_ratio, token_sort_ratio, partial_ratio
+
 from deduplipy.clustering.clustering import hierarchical_clustering
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking.blocking import Blocking
@@ -55,21 +57,30 @@ class Deduplicator:
         X_pool['row_number'] = np.arange(len(X_pool))
         df_sample = X_pool.sample(n=int(n_samples ** 0.5))
 
-        sample_combinations = pd.DataFrame(
+        pairs_table = pd.DataFrame(
             list(product(df_sample[[self.col_name, 'row_number']].values.tolist(),
                          df_sample[[self.col_name, 'row_number']].values.tolist())),
             columns=[f'{self.col_name}_1', f'{self.col_name}_2'])
 
         for nr in [1, 2]:
-            sample_combinations[f'row_number_{nr}'] = sample_combinations[f'{self.col_name}_{nr}'].str[1]
-            sample_combinations[f'{self.col_name}_{nr}'] = sample_combinations[f'{self.col_name}_{nr}'].str[0]
+            pairs_table[f'row_number_{nr}'] = pairs_table[f'{self.col_name}_{nr}'].str[1]
+            pairs_table[f'{self.col_name}_{nr}'] = pairs_table[f'{self.col_name}_{nr}'].str[0]
 
-        sample_combinations.sort_values(['row_number_1', 'row_number_2'], inplace=True)
+        pairs_table.sort_values(['row_number_1', 'row_number_2'], inplace=True)
 
-        sample_combinations = sample_combinations[
-            sample_combinations['row_number_1'] <= sample_combinations['row_number_2']]
-        sample_combinations = sample_combinations[[f'{self.col_name}_1', f'{self.col_name}_2']].reset_index(drop=True)
-        return sample_combinations
+        pairs_table = pairs_table[
+            pairs_table['row_number_1'] <= pairs_table['row_number_2']]
+        pairs_table = pairs_table[[f'{self.col_name}_1', f'{self.col_name}_2']].reset_index(drop=True)
+        return pairs_table
+
+    def _calculate_string_similarities(self, X):
+        X['similarities'] = X.apply(lambda row: [ratio(row[f'{self.col_name}_1'], row[f'{self.col_name}_2']),
+                                                 partial_ratio(row[f'{self.col_name}_1'], row[f'{self.col_name}_2']),
+                                                 token_set_ratio(row[f'{self.col_name}_1'], row[f'{self.col_name}_2']),
+                                                 token_sort_ratio(row[f'{self.col_name}_1'],
+                                                                  row[f'{self.col_name}_2'])],
+                                    axis=1)
+        return X
 
     def fit(self, X, n_samples=1_000):
         """
@@ -82,10 +93,12 @@ class Deduplicator:
         Returns: trained deduplicator instance
 
         """
-        sample_combinations = self._create_pairs_table(X, n_samples)
-        self.myActiveLearner.fit(sample_combinations)
+        pairs_table = self._create_pairs_table(X, n_samples)
+        similarities = self._calculate_string_similarities(pairs_table)
+        self.myActiveLearner.fit(similarities)
         print('active learning finished')
-        self.myBlocker.fit(self.myActiveLearner.learner.X_training, self.myActiveLearner.learner.y_training)
+        self.myBlocker.fit(self.myActiveLearner.train_samples[[f'{self.col_name}_1', f'{self.col_name}_2']],
+                           self.myActiveLearner.train_samples['y'])
         print('blocking rules found')
         print(self.myBlocker.rules_selected)
         return self
@@ -106,8 +119,9 @@ class Deduplicator:
         print('blocking finished')
         print(f'Nr of pairs: {len(scored_pairs_table)}')
         print('scoring started')
+        scored_pairs_table = self._calculate_string_similarities(scored_pairs_table)
         scored_pairs_table['score'] = self.myActiveLearner.predict_proba(
-            scored_pairs_table[[f'{self.col_name}_1', f'{self.col_name}_2']])[:, 1]
+            scored_pairs_table['similarities'].tolist())[:, 1]
         scored_pairs_table.loc[
             scored_pairs_table[f'{self.col_name}_1'] == scored_pairs_table[f'{self.col_name}_2'], 'score'] = 1
         print("scoring finished")

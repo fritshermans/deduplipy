@@ -36,7 +36,7 @@ class Blocking(BaseEstimator):
             fitted instance
 
         """
-        df_training = pd.DataFrame(X, columns=[f'{self.col_name}_1', f'{self.col_name}_2'])
+        df_training = X.copy()
         df_training['match'] = y
 
         for j, rule in enumerate(self.rules):

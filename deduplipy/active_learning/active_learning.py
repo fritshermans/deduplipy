@@ -1,10 +1,10 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from modAL.models import ActiveLearner
 from modAL.uncertainty import uncertainty_sampling
 
-from deduplipy.string_matcher.string_matcher import StringMatcher
 from deduplipy.active_learning.utils_active_learning import input_assert
+from deduplipy.string_matcher.string_matcher import ClassifierPipeline
 
 
 class ActiveStringMatchLearner:
@@ -22,7 +22,7 @@ class ActiveStringMatchLearner:
         self.col_name = col_name
         self.coef_diff_threshold = coef_diff_threshold
         self.learner = ActiveLearner(
-            estimator=StringMatcher(self.col_name),
+            estimator=ClassifierPipeline(),
             query_strategy=uncertainty_sampling,
         )
 
@@ -93,18 +93,22 @@ class ActiveStringMatchLearner:
         """
         self.parameters = [self._get_lr_params()]
 
-        query_idx_prev, query_inst_prev = None, None
+        self.train_samples = pd.DataFrame([])
+        query_inst_prev = None
         learn_counter = 0
         for i in range(self.n_queries):
-            query_idx, query_inst = self.learner.query(X)
-            y_new = self._get_active_learning_input(query_inst, learn_counter)
+            query_idx, query_inst = self.learner.query(np.array(X['similarities'].tolist()))
+            y_new = self._get_active_learning_input(X.iloc[query_idx], learn_counter)
             if y_new == -1:  # use previous (input is 'p')
                 y_new = self._get_active_learning_input(query_inst_prev, learn_counter)
             elif y_new == 9:  # finish labelling (input is 'f')
                 break
-            query_idx_prev, query_inst_prev = query_idx, query_inst
+            query_inst_prev = X.iloc[query_idx]
             if y_new != 8:  # skip unsure case (input is 'u')
-                self.learner.teach(query_inst, y_new)
+                self.learner.teach([X.iloc[query_idx]['similarities'].iloc[0]], y_new)
+                train_sample_to_add = X.iloc[query_idx]
+                train_sample_to_add['y'] = y_new
+                self.train_samples = self.train_samples.append(train_sample_to_add, ignore_index=True)
             X = X.drop(query_idx).reset_index(drop=True)
             self.parameters.append(self._get_lr_params())
             largest_coef_diff = self._get_largest_coef_diff()
@@ -115,7 +119,7 @@ class ActiveStringMatchLearner:
             learn_counter += 1
 
         # print score histogram
-        probas = self.learner.predict_proba(X)[:, 1]
+        probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
         count, division = np.histogram(probas, bins=np.arange(0, 1.01, 0.05))
         hist = pd.DataFrame({'count': count, 'score': division[1:]})
         print(hist)

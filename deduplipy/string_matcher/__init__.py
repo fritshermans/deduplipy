@@ -1,3 +1,3 @@
-__all__ = ['StringMatcher']
+__all__ = ['ClassifierPipeline']
 
-from .string_matcher import StringMatcher
+from .string_matcher import ClassifierPipeline
