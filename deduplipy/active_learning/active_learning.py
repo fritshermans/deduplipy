@@ -4,7 +4,7 @@ from modAL.models import ActiveLearner
 from modAL.uncertainty import uncertainty_sampling
 
 from deduplipy.active_learning.utils_active_learning import input_assert
-from deduplipy.string_matcher.string_matcher import ClassifierPipeline
+from deduplipy.classifier_pipeline.classifier_pipeline import ClassifierPipeline
 
 
 class ActiveStringMatchLearner:
