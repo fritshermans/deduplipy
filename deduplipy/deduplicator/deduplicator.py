@@ -115,11 +115,11 @@ class Deduplicator:
 
         """
         print('blocking started')
-        scored_pairs_table = self.myBlocker.transform(X)
+        pairs_table = self.myBlocker.transform(X)
         print('blocking finished')
-        print(f'Nr of pairs: {len(scored_pairs_table)}')
+        print(f'Nr of pairs: {len(pairs_table)}')
         print('scoring started')
-        scored_pairs_table = self._calculate_string_similarities(scored_pairs_table)
+        scored_pairs_table = self._calculate_string_similarities(pairs_table)
         scored_pairs_table['score'] = self.myActiveLearner.predict_proba(
             scored_pairs_table['similarities'].tolist())[:, 1]
         scored_pairs_table.loc[
