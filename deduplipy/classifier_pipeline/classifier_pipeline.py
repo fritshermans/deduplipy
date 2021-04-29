@@ -3,14 +3,23 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import PolynomialFeatures
 
 
 class ClassifierPipeline(BaseEstimator):
-    def __init__(self):
-        self.classifier = make_pipeline(
-            StandardScaler(),
-            LogisticRegression(class_weight='balanced')
-        )
+    def __init__(self, interaction=False):
+        if interaction:
+            self.classifier = make_pipeline(
+                StandardScaler(),
+                PolynomialFeatures(degree=2, interaction_only=True),
+                LogisticRegression(penalty='l1', class_weight='balanced', solver='saga', max_iter=1_000)
+            )
+        else:
+            self.classifier = make_pipeline(
+                StandardScaler(),
+                LogisticRegression(class_weight='balanced')
+            )
+
         # force the instance to be fitted such that one can predict during active learning before the model is fitted
         self._fitted = True
 

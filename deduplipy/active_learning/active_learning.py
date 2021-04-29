@@ -8,13 +8,14 @@ from deduplipy.classifier_pipeline.classifier_pipeline import ClassifierPipeline
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, n_queries, col_name, coef_diff_threshold=0.05):
+    def __init__(self, n_queries, col_name, interaction=False, coef_diff_threshold=0.05):
         """
         Class to train a string matching model using active learning.
 
         Args:
             n_queries: number of queries to provide during active learning
             col_name: column name to use for matching
+            interaction: whether to include interaction features
             coef_diff_threshold: threshold on largest update difference in logistic regression parameters, when this
                                 threshold is breached, a message is presented that the model had converged
         """
@@ -22,7 +23,7 @@ class ActiveStringMatchLearner:
         self.col_name = col_name
         self.coef_diff_threshold = coef_diff_threshold
         self.learner = ActiveLearner(
-            estimator=ClassifierPipeline(),
+            estimator=ClassifierPipeline(interaction=interaction),
             query_strategy=uncertainty_sampling,
         )
 
