@@ -106,7 +106,7 @@ class ActiveStringMatchLearner:
             query_inst_prev = X.iloc[query_idx]
             if y_new != 8:  # skip unsure case (input is 'u')
                 self.learner.teach([X.iloc[query_idx]['similarities'].iloc[0]], y_new)
-                train_sample_to_add = X.iloc[query_idx]
+                train_sample_to_add = X.iloc[query_idx].copy()
                 train_sample_to_add['y'] = y_new
                 self.train_samples = self.train_samples.append(train_sample_to_add, ignore_index=True)
             X = X.drop(query_idx).reset_index(drop=True)
