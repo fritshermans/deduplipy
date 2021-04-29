@@ -122,7 +122,7 @@ class ActiveStringMatchLearner:
         probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
         count, division = np.histogram(probas, bins=np.arange(0, 1.01, 0.05))
         hist = pd.DataFrame({'count': count, 'score': division[1:]})
-        print(hist)
+        print(hist[['score', 'count']].to_string(index=False))
 
     def predict(self, X):
         """
