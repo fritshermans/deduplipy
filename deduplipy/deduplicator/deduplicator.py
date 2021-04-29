@@ -82,7 +82,7 @@ class Deduplicator:
                                     axis=1)
         return X
 
-    def fit(self, X, n_samples=1_000):
+    def fit(self, X, n_samples=10_000):
         """
         Fit the deduplicator instance
 
