@@ -78,7 +78,11 @@ class ActiveStringMatchLearner:
 
         """
         params = self._get_lr_params()
-        print(f'\nNr. {learn_counter + 1}', params if isinstance(params, np.ndarray) else '')
+        if isinstance(params, np.ndarray):
+            params_str = f"\nLR parameters: {params}"
+        else:
+            params_str = ""
+        print(f'\nNr. {learn_counter + 1}', params_str)
         print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
         print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
         print('->', query_inst[[f'{col_name}_2' for col_name in self.col_names]].iloc[0].to_string())
@@ -119,7 +123,7 @@ class ActiveStringMatchLearner:
             self.parameters.append(self._get_lr_params())
             largest_coef_diff = self._get_largest_coef_diff()
             if largest_coef_diff:
-                print(largest_coef_diff)
+                print(f"Largest step in LR coefficients: {largest_coef_diff}")
                 if largest_coef_diff < self.coef_diff_threshold:
                     print("Classifier converged, enter 'f' to stop training")
             learn_counter += 1
