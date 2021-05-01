@@ -31,6 +31,7 @@ class ActiveStringMatchLearner:
             estimator=ClassifierPipeline(interaction=interaction),
             query_strategy=uncertainty_sampling,
         )
+        self.learn_counter = 0
 
     def _get_lr_params(self):
         """
@@ -63,13 +64,12 @@ class ActiveStringMatchLearner:
         else:
             return None
 
-    def _get_active_learning_input(self, query_inst, learn_counter):
+    def _get_active_learning_input(self, query_inst):
         """
         Obtain user input for a query during active learning.
 
         Args:
             query_inst: query as provided by the ActiveLearner instance
-            learn_counter: integer counting the number of the query
 
         Returns: label of user input 0 or 1
                     or -1 to go to previous
@@ -82,7 +82,7 @@ class ActiveStringMatchLearner:
             params_str = f"\nLR parameters: {params}"
         else:
             params_str = ""
-        print(f'\nNr. {learn_counter + 1}', params_str)
+        print(f'\nNr. {self.learn_counter + 1}', params_str)
         print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
         with pd.option_context('display.max_colwidth', -1):
             print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
@@ -106,12 +106,11 @@ class ActiveStringMatchLearner:
 
         self.train_samples = pd.DataFrame([])
         query_inst_prev = None
-        learn_counter = 0
         for i in range(self.n_queries):
             query_idx, query_inst = self.learner.query(np.array(X['similarities'].tolist()))
-            y_new = self._get_active_learning_input(X.iloc[query_idx], learn_counter)
+            y_new = self._get_active_learning_input(X.iloc[query_idx])
             if y_new == -1:  # use previous (input is 'p')
-                y_new = self._get_active_learning_input(query_inst_prev, learn_counter)
+                y_new = self._get_active_learning_input(query_inst_prev)
             elif y_new == 9:  # finish labelling (input is 'f')
                 break
             query_inst_prev = X.iloc[query_idx]
@@ -127,7 +126,7 @@ class ActiveStringMatchLearner:
                 print(f"Largest step in LR coefficients: {largest_coef_diff}")
                 if largest_coef_diff < self.coef_diff_threshold:
                     print("Classifier converged, enter 'f' to stop training")
-            learn_counter += 1
+            self.learn_counter += 1
 
         # print score histogram
         probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
