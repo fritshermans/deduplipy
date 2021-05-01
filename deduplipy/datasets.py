@@ -56,6 +56,15 @@ def load_chicago_childcare(return_pairs=False):
     file_path = resource_filename('deduplipy', os.path.join('data', 'csv_example_input_with_true_ids.csv'))
     df = pd.read_csv(file_path)
     df['name_address'] = df['Site name'] + " " + df['Address']
+    df.rename(columns={'Site name': 'name', 'Address': 'address'}, inplace=True)
+    for col in ['name', 'address']:
+        df[col] = (df[col].str.replace(',', ' ', regex=True)
+                          .str.replace('\n', ' ', regex=True)
+                          .str.replace('.', ' ', regex=True)
+                          .str.replace('"', ' ', regex=True)
+                          .str.replace(r'\s+', ' ', regex=True)
+                          .str.strip()
+                   )
     df['name_address'] = (df['name_address'].str.lower()
                           .str.replace(',', ' ', regex=True)
                           .str.replace('\n', ' ', regex=True)
@@ -99,7 +108,7 @@ def load_chicago_childcare(return_pairs=False):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
         return X_train, X_test, y_train, y_test
     else:
-        return df[['name_address']]
+        return df[['name', 'address']]
 
 
 def load_data(kind='stoxx50', return_pairs=False):

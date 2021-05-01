@@ -8,19 +8,24 @@ from deduplipy.classifier_pipeline.classifier_pipeline import ClassifierPipeline
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, n_queries, col_name, interaction=False, coef_diff_threshold=0.05):
+    def __init__(self, n_queries, col_names, interaction=False, coef_diff_threshold=0.05):
         """
         Class to train a string matching model using active learning.
 
         Args:
             n_queries: number of queries to provide during active learning
-            col_name: column name to use for matching
+            col_names: column names to use for matching
             interaction: whether to include interaction features
             coef_diff_threshold: threshold on largest update difference in logistic regression parameters, when this
                                 threshold is breached, a message is presented that the model had converged
         """
         self.n_queries = n_queries
-        self.col_name = col_name
+        if isinstance(col_names, list):
+            self.col_names = col_names
+        elif isinstance(col_names, str):
+            self.col_names = [col_names]
+        else:
+            raise Exception('col_name should be list or string')
         self.coef_diff_threshold = coef_diff_threshold
         self.learner = ActiveLearner(
             estimator=ClassifierPipeline(interaction=interaction),
@@ -75,8 +80,8 @@ class ActiveStringMatchLearner:
         params = self._get_lr_params()
         print(f'\nNr. {learn_counter + 1}', params if isinstance(params, np.ndarray) else '')
         print("Is this a match? (y)es, (n)o, (p)revious, (u)nsure, (f)inish")
-        print('->', query_inst[f'{self.col_name}_1'].iloc[0])
-        print('->', query_inst[f'{self.col_name}_2'].iloc[0])
+        print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
+        print('->', query_inst[[f'{col_name}_2' for col_name in self.col_names]].iloc[0].to_string())
         user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f', 'u'])
         # replace 'y' and 'n' with '1' and '0' to make them valid y labels
         user_input = user_input.replace('y', '1').replace('n', '0')
