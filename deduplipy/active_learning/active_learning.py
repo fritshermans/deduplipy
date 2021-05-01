@@ -31,7 +31,9 @@ class ActiveStringMatchLearner:
             estimator=ClassifierPipeline(interaction=interaction),
             query_strategy=uncertainty_sampling,
         )
-        self.learn_counter = 0
+        self.counter_total = 0
+        self.counter_positive = 0
+        self.counter_negative = 0
 
     def _get_lr_params(self):
         """
@@ -82,7 +84,7 @@ class ActiveStringMatchLearner:
             params_str = f"\nLR parameters: {params}"
         else:
             params_str = ""
-        print(f'\nNr. {self.learn_counter + 1}', params_str)
+        print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)', params_str)
         print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
         with pd.option_context('display.max_colwidth', -1):
             print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
@@ -126,7 +128,11 @@ class ActiveStringMatchLearner:
                 print(f"Largest step in LR coefficients: {largest_coef_diff}")
                 if largest_coef_diff < self.coef_diff_threshold:
                     print("Classifier converged, enter 'f' to stop training")
-            self.learn_counter += 1
+            if y_new == 1:
+                self.counter_positive += 1
+            elif y_new == 0:
+                self.counter_negative += 1
+            self.counter_total += 1
 
         # print score histogram
         probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
