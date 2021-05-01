@@ -8,4 +8,4 @@ API Reference
    deduplicator
    blocking
    clustering
-   string_matcher
+   classifier_pipeline

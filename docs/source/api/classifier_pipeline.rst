@@ -1,7 +1,7 @@
-string_matcher
----------------
+classifier_pipeline
+-------------------
 
-.. automodule:: deduplipy.string_matcher
+.. automodule:: deduplipy.classifier_pipeline
     :members:
     :undoc-members:
     :show-inheritance:
