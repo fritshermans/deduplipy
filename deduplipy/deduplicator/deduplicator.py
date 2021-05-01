@@ -142,4 +142,8 @@ class Deduplicator:
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names)
         X = X.merge(df_clusters, on='row_number', how='left').drop(columns=['row_number'])
         print('Clustering finished')
+        # add singletons
+        n_missing = len(X[X['cluster_id'].isnull()])
+        max_cluster_id = int(X[X['cluster_id'].notnull()]['cluster_id'].max())
+        X.loc[X['cluster_id'].isnull(), 'cluster_id'] = np.arange(max_cluster_id+1, max_cluster_id+1+n_missing)
         return X
