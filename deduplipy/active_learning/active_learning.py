@@ -84,8 +84,9 @@ class ActiveStringMatchLearner:
             params_str = ""
         print(f'\nNr. {learn_counter + 1}', params_str)
         print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
-        print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
-        print('->', query_inst[[f'{col_name}_2' for col_name in self.col_names]].iloc[0].to_string())
+        with pd.option_context('display.max_colwidth', -1):
+            print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
+            print('->', query_inst[[f'{col_name}_2' for col_name in self.col_names]].iloc[0].to_string())
         user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f', 's'])
         # replace 'y' and 'n' with '1' and '0' to make them valid y labels
         user_input = user_input.replace('y', '1').replace('n', '0')
