@@ -79,14 +79,14 @@ class ActiveStringMatchLearner:
         """
         params = self._get_lr_params()
         print(f'\nNr. {learn_counter + 1}', params if isinstance(params, np.ndarray) else '')
-        print("Is this a match? (y)es, (n)o, (p)revious, (u)nsure, (f)inish")
+        print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
         print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
         print('->', query_inst[[f'{col_name}_2' for col_name in self.col_names]].iloc[0].to_string())
-        user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f', 'u'])
+        user_input = input_assert("", ['0', '1', 'y', 'n', 'p', 'f', 's'])
         # replace 'y' and 'n' with '1' and '0' to make them valid y labels
         user_input = user_input.replace('y', '1').replace('n', '0')
-        # replace 'p' (previous) by '-1', 'f' (finished) by '9', and 'u' (unsure) by '8'
-        user_input = user_input.replace('p', '-1').replace('f', '9').replace('u', '8')
+        # replace 'p' (previous) by '-1', 'f' (finished) by '9', and 's' (skip) by '8'
+        user_input = user_input.replace('p', '-1').replace('f', '9').replace('s', '8')
         y_new = np.array([int(user_input)], dtype=int)
         return y_new
 
@@ -110,7 +110,7 @@ class ActiveStringMatchLearner:
             elif y_new == 9:  # finish labelling (input is 'f')
                 break
             query_inst_prev = X.iloc[query_idx]
-            if y_new != 8:  # skip unsure case (input is 'u')
+            if y_new != 8:  # skip case (input is 's')
                 self.learner.teach([X.iloc[query_idx]['similarities'].iloc[0]], y_new)
                 train_sample_to_add = X.iloc[query_idx].copy()
                 train_sample_to_add['y'] = y_new
