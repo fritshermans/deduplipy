@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import networkx as nx
-from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.cluster import hierarchy
 import scipy.spatial.distance as ssd
 
 
@@ -33,9 +33,10 @@ def hierarchical_clustering(scored_pairs_table, col_names, cluster_threshold=0.5
         subgraph = graph.subgraph(component)
         if len(subgraph.nodes) > 1:
             adjacency = nx.to_numpy_matrix(subgraph, weight='score')
-            condensed_distance = ssd.pdist(adjacency)
-            z = linkage(condensed_distance, method='centroid')
-            clusters = fcluster(z, t=cluster_threshold, criterion='distance')
+            distances = (np.ones_like(adjacency) - np.eye(len(adjacency))) - adjacency
+            condensed_distance = ssd.squareform(distances)
+            linkage = hierarchy.linkage(condensed_distance, method='centroid')
+            clusters = hierarchy.fcluster(linkage, t=cluster_threshold, criterion='distance')
         else:
             clusters = np.array([1])
         clustering.update(dict(zip(subgraph.nodes(), clusters + cluster_counter)))
