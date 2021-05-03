@@ -19,7 +19,7 @@ class ClassifierPipeline(BaseEstimator):
             self.classifier = make_pipeline(
                 StandardScaler(),
                 PolynomialFeatures(degree=2, interaction_only=True),
-                LogisticRegression(penalty='l1', class_weight='balanced', solver='saga', max_iter=1_000)
+                LogisticRegression(penalty='l1', class_weight='balanced', solver='saga', max_iter=10_000)
             )
         else:
             self.classifier = make_pipeline(
