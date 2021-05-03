@@ -153,6 +153,7 @@ class Deduplicator:
         print('Clustering finished')
         # add singletons
         n_missing = len(X[X['cluster_id'].isnull()])
-        max_cluster_id = int(X[X['cluster_id'].notnull()]['cluster_id'].max())
+        max_cluster_id = X[X['cluster_id'].notnull()]['cluster_id'].max()
         X.loc[X['cluster_id'].isnull(), 'cluster_id'] = np.arange(max_cluster_id + 1, max_cluster_id + 1 + n_missing)
+        X['cluster_id'] = X['cluster_id'].astype(int)
         return X
