@@ -125,6 +125,24 @@ class Deduplicator:
             print(self.myBlocker.rules_selected)
         return self
 
+    @staticmethod
+    def _add_singletons(X):
+        """
+        Adds `deduplication_id` to rows that are not deduplicated with other rows.
+
+        Args:
+            X: deduplication result where singletons have missing values for `deduplication_id`
+
+        Returns:
+            deduplication result where singletons have values for `deduplication_id`
+
+        """
+        n_missing = len(X[X[DEDUPLICATION_ID_NAME].isnull()])
+        max_cluster_id = X[X[DEDUPLICATION_ID_NAME].notnull()][DEDUPLICATION_ID_NAME].max()
+        X.loc[X[DEDUPLICATION_ID_NAME].isnull(), DEDUPLICATION_ID_NAME] = np.arange(max_cluster_id + 1,
+                                                                                    max_cluster_id + 1 + n_missing)
+        return X
+
     def predict(self, X, score_threshold=0.1):
         """
         Predict on new data using the trained deduplicator.
@@ -163,9 +181,6 @@ class Deduplicator:
         X = X.merge(df_clusters, on=ROW_ID, how='left').drop(columns=[ROW_ID])
         if self.verbose:
             print('Clustering finished')
-        # add singletons
-        n_missing = len(X[X[DEDUPLICATION_ID_NAME].isnull()])
-        max_cluster_id = X[X[DEDUPLICATION_ID_NAME].notnull()][DEDUPLICATION_ID_NAME].max()
-        X.loc[X[DEDUPLICATION_ID_NAME].isnull(), DEDUPLICATION_ID_NAME] = np.arange(max_cluster_id + 1, max_cluster_id + 1 + n_missing)
+        X = self._add_singletons(X)
         X[DEDUPLICATION_ID_NAME] = X[DEDUPLICATION_ID_NAME].astype(int)
         return X
