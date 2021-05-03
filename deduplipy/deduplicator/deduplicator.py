@@ -2,6 +2,7 @@ from itertools import product
 
 import numpy as np
 import pandas as pd
+from fuzzywuzzy.fuzz import ratio, partial_ratio, token_set_ratio, token_sort_ratio
 
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking.blocking import Blocking
@@ -9,7 +10,7 @@ from deduplipy.clustering.clustering import hierarchical_clustering
 
 
 class Deduplicator:
-    def __init__(self, similarity_metrics, interaction=False, n_queries=999, rules=None, recall=1.0,
+    def __init__(self, col_names=None, field_info=None, interaction=False, n_queries=999, rules=None, recall=1.0,
                  cache_tables=False):
         """
         Deduplicate entries in Pandas dataframe using column with name `col_name`. Training takes place during a short
@@ -24,17 +25,25 @@ class Deduplicator:
         The result is a dataframe with a new column `cluster_id`. Rows with the same `cluster_id` are deduplicated.
 
         Args:
-            recall:
-            col_name: name of column to use for deduplication
+            col_names: list of column names to be used for deduplication, if `col_names` is provided, `field_info` can
+            be set to `None` as it will be neglected
+            field_info: dict containing column names as keys and lists of metrics per column name as values, only used
+            when col_names is `None`
             interaction: whether to include interaction features
             n_queries: max number of queries to do during active learning, early stopping will be advised when
                         classifier converged
             rules: list of rules to use for blocking, if not provided, all default rules will be used
+            recall: desired recall reached by blocking rules
             cache_tables: whether to save intermediate results in csv files for analysis
 
         """
-        self.similarity_metrics = similarity_metrics
-        self.col_names = list(self.similarity_metrics.keys())
+        if col_names:
+            self.col_names = col_names
+            self.field_info = {col_name: [ratio, partial_ratio, token_set_ratio, token_sort_ratio] for col_name in
+                               self.col_names}
+        else:
+            self.field_info = field_info
+            self.col_names = list(self.field_info.keys())
         self.interaction = interaction
         self.n_queries = n_queries
         self.rules = rules
@@ -79,8 +88,8 @@ class Deduplicator:
 
     def _calculate_string_similarities(self, X):
         metrics_col_names = []
-        for field in self.similarity_metrics.keys():
-            for metric in self.similarity_metrics[field]:
+        for field in self.field_info.keys():
+            for metric in self.field_info[field]:
                 metrics_col_name = f'{field}_{metric.__name__}'
                 X[metrics_col_name] = X.apply(lambda row: metric(row[f'{field}_1'], row[f'{field}_2']), axis=1)
                 metrics_col_names.append(metrics_col_name)
@@ -145,5 +154,5 @@ class Deduplicator:
         # add singletons
         n_missing = len(X[X['cluster_id'].isnull()])
         max_cluster_id = int(X[X['cluster_id'].notnull()]['cluster_id'].max())
-        X.loc[X['cluster_id'].isnull(), 'cluster_id'] = np.arange(max_cluster_id+1, max_cluster_id+1+n_missing)
+        X.loc[X['cluster_id'].isnull(), 'cluster_id'] = np.arange(max_cluster_id + 1, max_cluster_id + 1 + n_missing)
         return X
