@@ -67,10 +67,10 @@ class Blocking(BaseEstimator):
         for rule in self.rules:
             for col_name in self.col_names:
                 rule_sets.update(
-                    {f'{col_name}_{rule.__name__}': [rule.__name__, col_name, set(
+                    {f'{col_name}_{rule.__name__}': [rule, rule.__name__, col_name, set(
                         df_training[df_training[f'{col_name}_{rule.__name__}'] == 1][
                             f'{col_name}_{rule.__name__}'].index.tolist())]})
-        self.subsets = [x[2] for x in rule_sets.values()]
+        self.subsets = [x[3] for x in rule_sets.values()]
 
         self.matches = df_training[df_training.match == 1].index.tolist()
         self.universe = set(self.matches)
@@ -79,9 +79,9 @@ class Blocking(BaseEstimator):
 
         self.rules_selected = []
         for rule_name, rule_specs in rule_sets.items():
-            rule_name, col_name, rule_set = rule_specs
+            rule, rule_name, col_name, rule_set = rule_specs
             if rule_set in self.cover:
-                self.rules_selected.append([rule_name, col_name])
+                self.rules_selected.append([rule, rule_name, col_name])
         return self
 
     def _fingerprint(self, X):
@@ -97,8 +97,8 @@ class Blocking(BaseEstimator):
         """
         df = X.copy()
         for j, rule_selected in enumerate(self.rules_selected):
-            rule_name, col_name = rule_selected
-            df[f'{col_name}_{rule_name}'] = df[col_name].apply(lambda x: eval(rule_name)(x))
+            rule, rule_name, col_name = rule_selected
+            df[f'{col_name}_{rule_name}'] = df[col_name].apply(lambda x: rule(x))
             df.loc[df[f'{col_name}_{rule_name}'].notnull(), f'{col_name}_{rule_name}'] = \
                 df[df[f'{col_name}_{rule_name}'].notnull()][f'{col_name}_{rule_name}'] + f":{j}"
         df_melted = df.melt(id_vars=self.col_names + [ROW_ID], value_name='fingerprint').drop(columns=['variable'])
