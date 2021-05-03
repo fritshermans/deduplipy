@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     myDedupliPy = Deduplicator(
         field_info={'name': [ratio, partial_ratio], 'address': [token_set_ratio, token_sort_ratio]}, interaction=False,
-        n_queries=999, cache_tables=True)
+        n_queries=999, cache_tables=True, verbose=1)
 
     myDedupliPy.fit(df_train)
     res = myDedupliPy.predict(df_train)
