@@ -2,6 +2,7 @@ from sklearn.base import BaseEstimator
 
 from deduplipy.blocking.blocking_rules import *
 from deduplipy.blocking.set_cover import greedy_set_cover
+from deduplipy.config import ROW_ID
 
 
 class Blocking(BaseEstimator):
@@ -100,7 +101,7 @@ class Blocking(BaseEstimator):
             df[f'{col_name}_{rule_name}'] = df[col_name].apply(lambda x: eval(rule_name)(x))
             df.loc[df[f'{col_name}_{rule_name}'].notnull(), f'{col_name}_{rule_name}'] = \
                 df[df[f'{col_name}_{rule_name}'].notnull()][f'{col_name}_{rule_name}'] + f":{j}"
-        df_melted = df.melt(id_vars=self.col_names + ['row_number'], value_name='fingerprint').drop(columns=['variable'])
+        df_melted = df.melt(id_vars=self.col_names + [ROW_ID], value_name='fingerprint').drop(columns=['variable'])
         df_melted.dropna(inplace=True)
         return df_melted
 
@@ -116,7 +117,7 @@ class Blocking(BaseEstimator):
         """
         pairs_table = X_fingerprinted.merge(X_fingerprinted, on='fingerprint', suffixes=('_1', '_2'))
         self.pairs_col_names = [f'{x}_1' for x in self.col_names] + [f'{x}_2' for x in self.col_names]
-        pairs_table = pairs_table[pairs_table['row_number_1'] < pairs_table['row_number_2']]
+        pairs_table = pairs_table[pairs_table[f'{ROW_ID}_1'] < pairs_table[f'{ROW_ID}_2']]
         return pairs_table
 
     def transform(self, X):
@@ -132,7 +133,7 @@ class Blocking(BaseEstimator):
         """
         X_fingerprinted = self._fingerprint(X)
         pairs_table = self._create_pairs_table(X_fingerprinted)
-        pairs_table = pairs_table.drop_duplicates(subset=['row_number_1', 'row_number_2'])
+        pairs_table = pairs_table.drop_duplicates(subset=[f'{ROW_ID}_1', f'{ROW_ID}_2'])
         if self.cache_tables:
             pairs_table.to_excel('pairs_table.xlsx', index=None)
         return pairs_table

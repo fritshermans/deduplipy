@@ -4,7 +4,7 @@ import networkx as nx
 from scipy.cluster import hierarchy
 import scipy.spatial.distance as ssd
 
-from deduplipy.config import DEDUPLICATION_ID_NAME
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 
 def hierarchical_clustering(scored_pairs_table, col_names, cluster_threshold=0.5):
@@ -23,9 +23,9 @@ def hierarchical_clustering(scored_pairs_table, col_names, cluster_threshold=0.5
     """
     graph = nx.Graph()
     for j, row in scored_pairs_table.iterrows():
-        graph.add_node(row['row_number_1'], **{col: row[f'{col}_1'] for col in col_names})
-        graph.add_node(row['row_number_2'], **{col: row[f'{col}_2'] for col in col_names})
-        graph.add_edge(row['row_number_1'], row['row_number_2'], score=row['score'])
+        graph.add_node(row[f'{ROW_ID}_1'], **{col: row[f'{col}_1'] for col in col_names})
+        graph.add_node(row[f'{ROW_ID}_2'], **{col: row[f'{col}_2'] for col in col_names})
+        graph.add_edge(row[f'{ROW_ID}_1'], row[f'{ROW_ID}_2'], score=row['score'])
 
     components = nx.connected_components(graph)
 
@@ -45,5 +45,5 @@ def hierarchical_clustering(scored_pairs_table, col_names, cluster_threshold=0.5
         cluster_counter += len(component)
     df_clusters = pd.DataFrame.from_dict(clustering, orient='index', columns=[DEDUPLICATION_ID_NAME])
     df_clusters.sort_values(DEDUPLICATION_ID_NAME, inplace=True)
-    df_clusters['row_number'] = df_clusters.index
+    df_clusters[ROW_ID] = df_clusters.index
     return df_clusters

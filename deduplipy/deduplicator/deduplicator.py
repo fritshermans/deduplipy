@@ -7,7 +7,7 @@ from fuzzywuzzy.fuzz import ratio, partial_ratio, token_set_ratio, token_sort_ra
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking.blocking import Blocking
 from deduplipy.clustering.clustering import hierarchical_clustering
-from deduplipy.config import DEDUPLICATION_ID_NAME
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 
 class Deduplicator:
@@ -68,21 +68,21 @@ class Deduplicator:
 
         """
         X_pool = X.copy()
-        X_pool['row_number'] = np.arange(len(X_pool))
+        X_pool[ROW_ID] = np.arange(len(X_pool))
         df_sample = X_pool.sample(n=int(n_samples ** 0.5))
 
         pairs_table = pd.DataFrame(
-            list(product(df_sample[self.col_names + ['row_number']].values.tolist(),
-                         df_sample[self.col_names + ['row_number']].values.tolist())))
+            list(product(df_sample[self.col_names + [ROW_ID]].values.tolist(),
+                         df_sample[self.col_names + [ROW_ID]].values.tolist())))
 
-        pairs_table[[f'{x}_1' for x in self.col_names + ['row_number']]] = pairs_table[0].to_list()
-        pairs_table[[f'{x}_2' for x in self.col_names + ['row_number']]] = pairs_table[1].to_list()
+        pairs_table[[f'{x}_1' for x in self.col_names + [ROW_ID]]] = pairs_table[0].to_list()
+        pairs_table[[f'{x}_2' for x in self.col_names + [ROW_ID]]] = pairs_table[1].to_list()
         pairs_table.drop(columns=[0, 1], inplace=True)
 
-        pairs_table.sort_values(['row_number_1', 'row_number_2'], inplace=True)
+        pairs_table.sort_values([f'{ROW_ID}_1', f'{ROW_ID}_2'], inplace=True)
 
         pairs_table = pairs_table[
-            pairs_table['row_number_1'] <= pairs_table['row_number_2']]
+            pairs_table[f'{ROW_ID}_1'] <= pairs_table[f'{ROW_ID}_2']]
         self.pairs_col_names = [f'{x}_1' for x in self.col_names] + [f'{x}_2' for x in self.col_names]
         pairs_table = pairs_table[self.pairs_col_names].reset_index(
             drop=True)
@@ -133,7 +133,7 @@ class Deduplicator:
         deduplicated.
 
         """
-        X['row_number'] = np.arange(len(X))
+        X[ROW_ID] = np.arange(len(X))
         print('blocking started')
         pairs_table = self.myBlocker.transform(X)
         print('blocking finished')
@@ -152,7 +152,7 @@ class Deduplicator:
             scored_pairs_table.to_excel('scored_pairs_table.xlsx', index=None)
         print('Clustering started')
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names)
-        X = X.merge(df_clusters, on='row_number', how='left').drop(columns=['row_number'])
+        X = X.merge(df_clusters, on=ROW_ID, how='left').drop(columns=[ROW_ID])
         print('Clustering finished')
         # add singletons
         n_missing = len(X[X[DEDUPLICATION_ID_NAME].isnull()])
