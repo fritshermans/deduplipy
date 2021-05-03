@@ -36,7 +36,3 @@ class ClassifierPipeline(BaseEstimator):
 
     def predict_proba(self, X):
         return self.classifier.predict_proba(X)
-
-    def score(self, X, y):
-        preds = self.predict(X)
-        return f1_score(preds, y)
