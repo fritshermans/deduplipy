@@ -4,6 +4,8 @@ import networkx as nx
 from scipy.cluster import hierarchy
 import scipy.spatial.distance as ssd
 
+from deduplipy.config import DEDUPLICATION_ID_NAME
+
 
 def hierarchical_clustering(scored_pairs_table, col_names, cluster_threshold=0.5):
     """
@@ -41,7 +43,7 @@ def hierarchical_clustering(scored_pairs_table, col_names, cluster_threshold=0.5
             clusters = np.array([1])
         clustering.update(dict(zip(subgraph.nodes(), clusters + cluster_counter)))
         cluster_counter += len(component)
-    df_clusters = pd.DataFrame.from_dict(clustering, orient='index', columns=['cluster_id'])
-    df_clusters.sort_values('cluster_id', inplace=True)
+    df_clusters = pd.DataFrame.from_dict(clustering, orient='index', columns=[DEDUPLICATION_ID_NAME])
+    df_clusters.sort_values(DEDUPLICATION_ID_NAME, inplace=True)
     df_clusters['row_number'] = df_clusters.index
     return df_clusters

@@ -7,22 +7,24 @@ from fuzzywuzzy.fuzz import ratio, partial_ratio, token_set_ratio, token_sort_ra
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking.blocking import Blocking
 from deduplipy.clustering.clustering import hierarchical_clustering
+from deduplipy.config import DEDUPLICATION_ID_NAME
 
 
 class Deduplicator:
     def __init__(self, col_names=None, field_info=None, interaction=False, n_queries=999, rules=None, recall=1.0,
                  cache_tables=False):
         """
-        Deduplicate entries in Pandas dataframe using column with name `col_name`. Training takes place during a short
-        interactive session (interactive learning).
+        Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
+        short, interactive session (interactive learning).
 
         Usage:
             df = ...
-            myDedupliPy = Deduplicator('name_address')
+            myDedupliPy = Deduplicator(['name', 'address'])
             myDedupliPy.fit(df)
-            myDedupliPy.predict(df_train)
+            myDedupliPy.predict(df)
 
-        The result is a dataframe with a new column `cluster_id`. Rows with the same `cluster_id` are deduplicated.
+        The result is a dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
+        deduplicated.
 
         Args:
             col_names: list of column names to be used for deduplication, if `col_names` is provided, `field_info` can
@@ -127,7 +129,8 @@ class Deduplicator:
             X: Pandas dataframe with column as used when fitting deduplicator instance
             score_threshold: Classification threshold to use for filtering before starting hierarchical clustering
 
-        Returns: Pandas dataframe with a new column `cluster_id`. Rows with the same `cluster_id` are deduplicated.
+        Returns: Pandas dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
+        deduplicated.
 
         """
         X['row_number'] = np.arange(len(X))
@@ -152,8 +155,8 @@ class Deduplicator:
         X = X.merge(df_clusters, on='row_number', how='left').drop(columns=['row_number'])
         print('Clustering finished')
         # add singletons
-        n_missing = len(X[X['cluster_id'].isnull()])
-        max_cluster_id = X[X['cluster_id'].notnull()]['cluster_id'].max()
-        X.loc[X['cluster_id'].isnull(), 'cluster_id'] = np.arange(max_cluster_id + 1, max_cluster_id + 1 + n_missing)
-        X['cluster_id'] = X['cluster_id'].astype(int)
+        n_missing = len(X[X[DEDUPLICATION_ID_NAME].isnull()])
+        max_cluster_id = X[X[DEDUPLICATION_ID_NAME].notnull()][DEDUPLICATION_ID_NAME].max()
+        X.loc[X[DEDUPLICATION_ID_NAME].isnull(), DEDUPLICATION_ID_NAME] = np.arange(max_cluster_id + 1, max_cluster_id + 1 + n_missing)
+        X[DEDUPLICATION_ID_NAME] = X[DEDUPLICATION_ID_NAME].astype(int)
         return X
