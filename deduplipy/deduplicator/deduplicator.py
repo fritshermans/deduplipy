@@ -12,7 +12,7 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 class Deduplicator:
     def __init__(self, col_names=None, field_info=None, interaction=False, n_queries=999, rules=None, recall=1.0,
-                 cache_tables=False):
+                 cache_tables=False, verbose=0):
         """
         Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
         short, interactive session (interactive learning).
@@ -37,6 +37,7 @@ class Deduplicator:
             rules: list of rules to use for blocking, if not provided, all default rules will be used
             recall: desired recall reached by blocking rules
             cache_tables: whether to save intermediate results in csv files for analysis
+            verbose: sets verbosity
 
         """
         if col_names:
@@ -51,8 +52,9 @@ class Deduplicator:
         self.rules = rules
         self.recall = recall
         self.cache_tables = cache_tables
+        self.verbose = verbose
         self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col_names=self.col_names,
-                                                        interaction=self.interaction)
+                                                        interaction=self.interaction, verbose=self.verbose)
         self.myBlocker = Blocking(self.col_names, rules, recall=self.recall, cache_tables=self.cache_tables)
 
     def _create_pairs_table(self, X, n_samples):
@@ -114,11 +116,13 @@ class Deduplicator:
         pairs_table = self._create_pairs_table(X, n_samples)
         similarities = self._calculate_string_similarities(pairs_table)
         self.myActiveLearner.fit(similarities)
-        print('active learning finished')
+        if self.verbose:
+            print('active learning finished')
         self.myBlocker.fit(self.myActiveLearner.train_samples[self.pairs_col_names],
                            self.myActiveLearner.train_samples['y'])
-        print('blocking rules found')
-        print(self.myBlocker.rules_selected)
+        if self.verbose:
+            print('blocking rules found')
+            print(self.myBlocker.rules_selected)
         return self
 
     def predict(self, X, score_threshold=0.1):
@@ -134,26 +138,31 @@ class Deduplicator:
 
         """
         X[ROW_ID] = np.arange(len(X))
-        print('blocking started')
+        if self.verbose:
+            print('blocking started')
         pairs_table = self.myBlocker.transform(X)
-        print('blocking finished')
-        print(f'Nr of pairs: {len(pairs_table)}')
-        print('scoring started')
+        if self.verbose:
+            print('blocking finished')
+            print(f'Nr of pairs: {len(pairs_table)}')
+            print('scoring started')
         scored_pairs_table = self._calculate_string_similarities(pairs_table)
         scored_pairs_table['score'] = self.myActiveLearner.predict_proba(
             scored_pairs_table['similarities'].tolist())[:, 1]
         scored_pairs_table.loc[
             (scored_pairs_table[[f'{x}_1' for x in self.col_names]].values == scored_pairs_table[
                 [f'{x}_2' for x in self.col_names]].values).all(axis=1), 'score'] = 1
-        print("scoring finished")
+        if self.verbose:
+            print("scoring finished")
         scored_pairs_table = scored_pairs_table[scored_pairs_table['score'] >= score_threshold]
-        print(f'Nr of filtered pairs: {len(scored_pairs_table)}')
+        if self.verbose:
+            print(f'Nr of filtered pairs: {len(scored_pairs_table)}')
+            print('Clustering started')
         if self.cache_tables:
             scored_pairs_table.to_excel('scored_pairs_table.xlsx', index=None)
-        print('Clustering started')
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names)
         X = X.merge(df_clusters, on=ROW_ID, how='left').drop(columns=[ROW_ID])
-        print('Clustering finished')
+        if self.verbose:
+            print('Clustering finished')
         # add singletons
         n_missing = len(X[X[DEDUPLICATION_ID_NAME].isnull()])
         max_cluster_id = X[X[DEDUPLICATION_ID_NAME].notnull()][DEDUPLICATION_ID_NAME].max()

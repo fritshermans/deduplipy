@@ -8,7 +8,7 @@ from deduplipy.classifier_pipeline.classifier_pipeline import ClassifierPipeline
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, n_queries, col_names, interaction=False, coef_diff_threshold=0.05):
+    def __init__(self, n_queries, col_names, interaction=False, coef_diff_threshold=0.05, verbose=0):
         """
         Class to train a string matching model using active learning.
 
@@ -18,6 +18,8 @@ class ActiveStringMatchLearner:
             interaction: whether to include interaction features
             coef_diff_threshold: threshold on largest update difference in logistic regression parameters, when this
                                 threshold is breached, a message is presented that the model had converged
+            verbose: sets verbosity
+
         """
         self.n_queries = n_queries
         if isinstance(col_names, list):
@@ -27,6 +29,7 @@ class ActiveStringMatchLearner:
         else:
             raise Exception('col_name should be list or string')
         self.coef_diff_threshold = coef_diff_threshold
+        self.verbose = verbose
         self.learner = ActiveLearner(
             estimator=ClassifierPipeline(interaction=interaction),
             query_strategy=uncertainty_sampling,
@@ -84,7 +87,10 @@ class ActiveStringMatchLearner:
             params_str = f"\nLR parameters: {params}"
         else:
             params_str = ""
-        print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)', params_str)
+        if self.verbose:
+            print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)', params_str)
+        else:
+            print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)')
         print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
         with pd.option_context('display.max_colwidth', -1):
             print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
@@ -125,7 +131,8 @@ class ActiveStringMatchLearner:
             self.parameters.append(self._get_lr_params())
             largest_coef_diff = self._get_largest_coef_diff()
             if largest_coef_diff:
-                print(f"Largest step in LR coefficients: {largest_coef_diff}")
+                if self.verbose:
+                    print(f"Largest step in LR coefficients: {largest_coef_diff}")
                 if largest_coef_diff < self.coef_diff_threshold:
                     print("Classifier converged, enter 'f' to stop training")
             if y_new == 1:
@@ -138,7 +145,8 @@ class ActiveStringMatchLearner:
         probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
         count, division = np.histogram(probas, bins=np.arange(0, 1.01, 0.05))
         hist = pd.DataFrame({'count': count, 'score': division[1:]})
-        print(hist[['score', 'count']].to_string(index=False))
+        if self.verbose:
+            print(hist[['score', 'count']].to_string(index=False))
 
     def predict(self, X):
         """
