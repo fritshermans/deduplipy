@@ -42,7 +42,7 @@ class Deduplicator:
         """
         if col_names:
             self.col_names = col_names
-            self.field_info = {col_name: [ratio, partial_ratio, token_set_ratio, token_sort_ratio] for col_name in
+            self.field_info = {col_name: [ratio, token_sort_ratio] for col_name in
                                self.col_names}
         else:
             self.field_info = field_info
