@@ -2,7 +2,7 @@ from itertools import product
 
 import numpy as np
 import pandas as pd
-from fuzzywuzzy.fuzz import ratio, partial_ratio, token_set_ratio, token_sort_ratio
+from fuzzywuzzy.fuzz import ratio, token_sort_ratio
 
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking.blocking import Blocking
