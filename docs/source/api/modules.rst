@@ -9,3 +9,4 @@ API Reference
    blocking
    clustering
    classifier_pipeline
+   load_data
