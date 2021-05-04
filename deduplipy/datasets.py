@@ -22,6 +22,10 @@ def load_data(kind='voters'):
     """
     Load data for experimentation. `kind` can be 'stoxx50' or 'voters'.
 
+    Stoxx 50 data are created by the developer of DedupliPy. Voters data is based on the North Carolina voter registry
+    and this dataset is provided by Prof. Erhard Rahm ('Comparative Evaluation of Distributed Clustering Schemes for
+    Multi-source Entity Resolution').
+
     Args:
         kind: 'stoxx50' or 'voters'
 
