@@ -12,7 +12,7 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 class Deduplicator:
     def __init__(self, col_names=None, field_info=None, interaction=False, n_queries=999, rules=None, recall=1.0,
-                 cache_tables=False, verbose=0):
+                 save_intermediate_steps=False, verbose=0):
         """
         Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
         short, interactive session (interactive learning).
@@ -36,7 +36,7 @@ class Deduplicator:
                         classifier converged
             rules: list of rules to use for blocking, if not provided, all default rules will be used
             recall: desired recall reached by blocking rules
-            cache_tables: whether to save intermediate results in csv files for analysis
+            save_intermediate_steps: whether to save intermediate results in csv files for analysis
             verbose: sets verbosity
 
         """
@@ -51,11 +51,12 @@ class Deduplicator:
         self.n_queries = n_queries
         self.rules = rules
         self.recall = recall
-        self.cache_tables = cache_tables
+        self.save_intermediate_steps = save_intermediate_steps
         self.verbose = verbose
         self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col_names=self.col_names,
                                                         interaction=self.interaction, verbose=self.verbose)
-        self.myBlocker = Blocking(self.col_names, rules, recall=self.recall, cache_tables=self.cache_tables)
+        self.myBlocker = Blocking(self.col_names, rules, recall=self.recall,
+                                  save_intermediate_steps=self.save_intermediate_steps)
 
     def _create_pairs_table(self, X, n_samples):
         """
@@ -176,7 +177,7 @@ class Deduplicator:
         if self.verbose:
             print(f'Nr of filtered pairs: {len(scored_pairs_table)}')
             print('Clustering started')
-        if self.cache_tables:
+        if self.save_intermediate_steps:
             scored_pairs_table.to_excel('scored_pairs_table.xlsx', index=None)
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names)
         X = X.merge(df_clusters, on=ROW_ID, how='left').drop(columns=[ROW_ID])

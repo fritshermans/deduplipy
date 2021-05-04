@@ -6,7 +6,7 @@ from deduplipy.config import ROW_ID
 
 
 class Blocking(BaseEstimator):
-    def __init__(self, col_names, rules=None, recall=1.0, cache_tables=False):
+    def __init__(self, col_names, rules=None, recall=1.0, save_intermediate_steps=False):
         """
         Class for fitting blocking rules and applying them on new pairs
 
@@ -14,7 +14,7 @@ class Blocking(BaseEstimator):
             col_names: column names on which blocking rules should be applied
             rules: list of rules to test for blocking, if None, all available blocking rules are used
             recall: minimum recall required
-            cache_tables: whether or not to save intermediate results
+            save_intermediate_steps: whether or not to save intermediate results
 
         """
         if isinstance(col_names, list):
@@ -27,7 +27,7 @@ class Blocking(BaseEstimator):
         if not self.rules:
             self.rules = all_rules
         self.recall = recall
-        self.cache_tables = cache_tables
+        self.save_intermediate_steps = save_intermediate_steps
 
     def fit(self, X, y):
         """
@@ -134,6 +134,6 @@ class Blocking(BaseEstimator):
         X_fingerprinted = self._fingerprint(X)
         pairs_table = self._create_pairs_table(X_fingerprinted)
         pairs_table = pairs_table.drop_duplicates(subset=[f'{ROW_ID}_1', f'{ROW_ID}_2'])
-        if self.cache_tables:
+        if self.save_intermediate_steps:
             pairs_table.to_excel('pairs_table.xlsx', index=None)
         return pairs_table
