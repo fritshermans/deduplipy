@@ -118,9 +118,9 @@ class Deduplicator:
         self.myActiveLearner.fit(similarities)
         if self.verbose:
             print('active learning finished')
-        # y_pred = self.myActiveLearner.predict(similarities['similarities'])
-        self.myBlocker.fit(self.myActiveLearner.train_samples[self.pairs_col_names],
-                           self.myActiveLearner.train_samples['y'])
+        # calculate predictions on pairs table to use for blocking
+        y_pred = self.myActiveLearner.predict(similarities['similarities'].to_list())
+        self.myBlocker.fit(similarities[self.pairs_col_names], y_pred)
         if self.verbose:
             print('blocking rules found')
             print([x[1:] for x in self.myBlocker.rules_selected])
