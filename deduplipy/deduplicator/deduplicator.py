@@ -118,6 +118,7 @@ class Deduplicator:
         self.myActiveLearner.fit(similarities)
         if self.verbose:
             print('active learning finished')
+        # y_pred = self.myActiveLearner.predict(similarities['similarities'])
         self.myBlocker.fit(self.myActiveLearner.train_samples[self.pairs_col_names],
                            self.myActiveLearner.train_samples['y'])
         if self.verbose:
