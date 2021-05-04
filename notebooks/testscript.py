@@ -1,15 +1,15 @@
 from deduplipy.datasets import load_data
 from deduplipy.deduplicator import Deduplicator
+from deduplipy.config import DEDUPLICATION_ID_NAME
 from fuzzywuzzy.fuzz import ratio, token_set_ratio, token_sort_ratio, partial_ratio
 
 if __name__ == "__main__":
-    df_train = load_data(kind='childcare', return_pairs=False)
+    df_train = load_data(kind='voters')
 
-    myDedupliPy = Deduplicator(
-        field_info={'name': [ratio, partial_ratio], 'address': [token_set_ratio, token_sort_ratio]}, interaction=False,
+    myDedupliPy = Deduplicator(['name', 'suburb', 'postcode'], interaction=False,
         n_queries=999, cache_tables=True, verbose=1)
 
     myDedupliPy.fit(df_train)
     res = myDedupliPy.predict(df_train)
-    res.to_excel('res.xlsx', index=None)
+    res.sort_values(DEDUPLICATION_ID_NAME).to_excel('res.xlsx', index=None)
     print(res)

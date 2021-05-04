@@ -171,3 +171,6 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/python
+
+/notebooks/prepare_data
+/notebooks/chicago_childcare
