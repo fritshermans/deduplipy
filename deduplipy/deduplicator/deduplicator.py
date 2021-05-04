@@ -122,7 +122,7 @@ class Deduplicator:
                            self.myActiveLearner.train_samples['y'])
         if self.verbose:
             print('blocking rules found')
-            print(self.myBlocker.rules_selected)
+            print([x[1:] for x in self.myBlocker.rules_selected])
         return self
 
     @staticmethod
