@@ -103,6 +103,19 @@ class ActiveStringMatchLearner:
         y_new = np.array([int(user_input)], dtype=int)
         return y_new
 
+    def _print_score_histogram(self, X):
+        """
+        Prints histogram of predict_proba scores for X
+
+        Args:
+            X: features to calculate predict_proba for
+
+        """
+        probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
+        count, division = np.histogram(probas, bins=np.arange(0, 1.01, 0.05))
+        hist = pd.DataFrame({'count': count, 'score': division[1:]})
+        print(hist[['score', 'count']].to_string(index=False))
+
     def fit(self, X):
         """
         Fit ActiveStringMatchLearner instance on pairs of strings
@@ -140,13 +153,8 @@ class ActiveStringMatchLearner:
             elif y_new == 0:
                 self.counter_negative += 1
             self.counter_total += 1
-
-        # print score histogram
-        probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
-        count, division = np.histogram(probas, bins=np.arange(0, 1.01, 0.05))
-        hist = pd.DataFrame({'count': count, 'score': division[1:]})
         if self.verbose:
-            print(hist[['score', 'count']].to_string(index=False))
+            self._print_score_histogram(X)
 
     def predict(self, X):
         """
