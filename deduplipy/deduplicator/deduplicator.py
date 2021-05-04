@@ -178,7 +178,7 @@ class Deduplicator:
             print(f'Nr of filtered pairs: {len(scored_pairs_table)}')
             print('Clustering started')
         if self.save_intermediate_steps:
-            scored_pairs_table.to_excel('scored_pairs_table.xlsx', index=None)
+            scored_pairs_table.to_csv('scored_pairs_table.csv', index=None, sep="|")
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names)
         X = X.merge(df_clusters, on=ROW_ID, how='left').drop(columns=[ROW_ID])
         if self.verbose:

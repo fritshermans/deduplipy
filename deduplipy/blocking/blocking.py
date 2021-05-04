@@ -135,5 +135,5 @@ class Blocking(BaseEstimator):
         pairs_table = self._create_pairs_table(X_fingerprinted)
         pairs_table = pairs_table.drop_duplicates(subset=[f'{ROW_ID}_1', f'{ROW_ID}_2'])
         if self.save_intermediate_steps:
-            pairs_table.to_excel('pairs_table.xlsx', index=None)
+            pairs_table.to_csv('pairs_table.csv', index=None, sep="|")
         return pairs_table
