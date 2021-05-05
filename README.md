@@ -13,6 +13,10 @@ DedupliPy is an end-to-end solution with advantages over existing solutions:
 
 Developed by [Frits Hermans](https://www.linkedin.com/in/frits-hermans-data-scientist/)
 
+## Documentation
+
+Documentation can be found [here](https://deduplipy.readthedocs.io/en/latest/)
+
 ## Installation
 
 ### Normal installation
