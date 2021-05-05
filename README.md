@@ -1,3 +1,6 @@
+[![Version](https://img.shields.io/pypi/v/deduplipy)](https://pypi.org/project/scikit-lego/)
+![](https://img.shields.io/github/license/koaning/scikit-lego)
+
 # DedupliPy
 
 Deduplication is the task to combine different representations of the same real world entity. This package implements
