@@ -21,6 +21,7 @@ DedupliPy is an end-to-end solution with advantages over existing solutions:
    :maxdepth: 2
    :caption: Contents:
 
+   installation
    Tutorial.ipynb
    api/modules
 
