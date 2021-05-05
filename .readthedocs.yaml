@@ -19,5 +19,5 @@ python:
    install:
    - requirements: docs/docs-requirements.txt
    - method: pip
-        path: .
+     path: .
    system_packages: true
