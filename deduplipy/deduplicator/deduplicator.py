@@ -57,7 +57,7 @@ class Deduplicator:
 
     def __repr__(self):
         repr_dict = {x: self.__dict__[x] for x in
-                     ['col_names', 'field_info', 'interaction', 'n_queries', 'rules', 'recall']}
+                     ['col_names', 'field_info', 'interaction', 'rules', 'recall']}
         field_info_str = dict()
         for key, value in repr_dict['field_info'].items():
             list_str = [x.__name__ for x in value]
