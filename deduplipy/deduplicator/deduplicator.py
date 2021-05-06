@@ -58,6 +58,19 @@ class Deduplicator:
         self.myBlocker = Blocking(self.col_names, rules, recall=self.recall,
                                   save_intermediate_steps=self.save_intermediate_steps)
 
+    def __repr__(self):
+        repr_dict = {x: self.__dict__[x] for x in
+                     ['col_names', 'field_info', 'interaction', 'n_queries', 'rules', 'recall']}
+        field_info_str = dict()
+        for key, value in repr_dict['field_info'].items():
+            list_str = [x.__name__ for x in value]
+            field_info_str.update({key: list_str})
+        repr_dict.update({'field_info': field_info_str})
+        repr_str = 'Deduplicator\n'
+        for key, value in repr_dict.items():
+            repr_str += f'  - {key} = {value}\n'
+        return repr_str
+
     def _create_pairs_table(self, X, n_samples):
         """
         Create sample of pairs
