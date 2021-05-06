@@ -11,7 +11,7 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 
 class Deduplicator:
-    def __init__(self, col_names=None, field_info=None, interaction=False, n_queries=999, rules=None, recall=1.0,
+    def __init__(self, col_names=None, field_info=None, interaction=False, rules=None, recall=1.0,
                  save_intermediate_steps=False, verbose=0):
         """
         Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
@@ -32,8 +32,6 @@ class Deduplicator:
             field_info: dict containing column names as keys and lists of metrics per column name as values, only used
             when col_names is `None`
             interaction: whether to include interaction features
-            n_queries: max number of queries to do during active learning, early stopping will be advised when
-                        classifier converged
             rules: list of rules to use for blocking, if not provided, all default rules will be used
             recall: desired recall reached by blocking rules
             save_intermediate_steps: whether to save intermediate results in csv files for analysis
@@ -48,13 +46,12 @@ class Deduplicator:
             self.field_info = field_info
             self.col_names = list(self.field_info.keys())
         self.interaction = interaction
-        self.n_queries = n_queries
         self.rules = rules
         self.recall = recall
         self.save_intermediate_steps = save_intermediate_steps
         self.verbose = verbose
-        self.myActiveLearner = ActiveStringMatchLearner(n_queries=self.n_queries, col_names=self.col_names,
-                                                        interaction=self.interaction, verbose=self.verbose)
+        self.myActiveLearner = ActiveStringMatchLearner(col_names=self.col_names, interaction=self.interaction,
+                                                        verbose=self.verbose)
         self.myBlocker = Blocking(self.col_names, rules, recall=self.recall,
                                   save_intermediate_steps=self.save_intermediate_steps)
 

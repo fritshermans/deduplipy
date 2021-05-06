@@ -5,15 +5,15 @@ from modAL.uncertainty import uncertainty_sampling
 
 from deduplipy.active_learning.utils_active_learning import input_assert
 from deduplipy.classifier_pipeline.classifier_pipeline import ClassifierPipeline
+from deduplipy.config import N_QUERIES
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, n_queries, col_names, interaction=False, coef_diff_threshold=0.05, verbose=0):
+    def __init__(self, col_names, interaction=False, coef_diff_threshold=0.05, verbose=0):
         """
         Class to train a string matching model using active learning.
 
         Args:
-            n_queries: number of queries to provide during active learning
             col_names: column names to use for matching
             interaction: whether to include interaction features
             coef_diff_threshold: threshold on largest update difference in logistic regression parameters, when this
@@ -21,7 +21,6 @@ class ActiveStringMatchLearner:
             verbose: sets verbosity
 
         """
-        self.n_queries = n_queries
         if isinstance(col_names, list):
             self.col_names = col_names
         elif isinstance(col_names, str):
@@ -127,7 +126,7 @@ class ActiveStringMatchLearner:
 
         self.train_samples = pd.DataFrame([])
         query_inst_prev = None
-        for i in range(self.n_queries):
+        for i in range(N_QUERIES):
             query_idx, query_inst = self.learner.query(np.array(X['similarities'].tolist()))
             y_new = self._get_active_learning_input(X.iloc[query_idx])
             if y_new == -1:  # use previous (input is 'p')
