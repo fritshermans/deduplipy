@@ -1,4 +1,7 @@
-def input_assert(message, choices) -> str:
+from typing import List
+
+
+def input_assert(message: str, choices: List[str]) -> str:
     """
     Adds functionality to the python function `input` to limit the choices that can be returned
 

@@ -1,3 +1,5 @@
+from typing import List
+
 import pandas as pd
 import numpy as np
 import networkx as nx
@@ -7,7 +9,8 @@ import scipy.spatial.distance as ssd
 from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 
-def hierarchical_clustering(scored_pairs_table, col_names, cluster_threshold=0.5):
+def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
+                            cluster_threshold: float = 0.5) -> pd.DataFrame:
     """
     Apply hierarchical clustering to scored_pairs_table and perform the actual deduplication by adding a cluster id to
     each record

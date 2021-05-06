@@ -4,21 +4,21 @@ from pkg_resources import resource_filename
 import pandas as pd
 
 
-def load_stoxx50():
+def load_stoxx50() -> pd.DataFrame:
     file_path = resource_filename('deduplipy', os.path.join('data', 'stoxx50_extended_with_id.xlsx'))
     df = pd.read_excel(file_path, engine='openpyxl')
     print("Column names: 'name'")
     return df[['name']]
 
 
-def load_voters():
+def load_voters() -> pd.DataFrame:
     file_path = resource_filename('deduplipy', os.path.join('data', 'voter_names.csv'))
     df = pd.read_csv(file_path)
     print("Column names: 'name', 'suburb', 'postcode'")
     return df
 
 
-def load_data(kind='voters'):
+def load_data(kind: str = 'voters') -> pd.DataFrame:
     """
     Load data for experimentation. `kind` can be 'stoxx50' or 'voters'.
 

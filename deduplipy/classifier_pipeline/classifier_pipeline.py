@@ -1,3 +1,7 @@
+from typing import Union
+
+import pandas as pd
+import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
@@ -6,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 class ClassifierPipeline(BaseEstimator):
-    def __init__(self, interaction=False):
+    def __init__(self, interaction: bool = False) -> 'ClassifierPipeline':
         """
         Classification pipeline to be used in ActiveStringMatchLearner. Does not throw an error when there is only one
         class in the targets during the first steps in active learning.
@@ -30,7 +34,7 @@ class ClassifierPipeline(BaseEstimator):
         # force the instance to be fitted such that one can predict during active learning before the model is fitted
         self._fitted = True
 
-    def fit(self, X, y):
+    def fit(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.DataFrame, np.ndarray]) -> 'ClassifierPipeline':
         """
         Fit the classification pipeline. Does not throw an error when there is only one class in the targets during the
         first steps in active learning.
@@ -50,7 +54,7 @@ class ClassifierPipeline(BaseEstimator):
             self.classifier.fit(X, y)
             return self
 
-    def predict(self, X):
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
         Predict using fitted instance.
 
@@ -63,7 +67,7 @@ class ClassifierPipeline(BaseEstimator):
         """
         return self.classifier.predict(X)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
         Predict probabilities using fitted instance.
 

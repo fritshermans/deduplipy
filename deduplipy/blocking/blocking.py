@@ -1,3 +1,7 @@
+from typing import List, Optional, Callable, Union
+
+import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator
 
 from deduplipy.blocking.blocking_rules import *
@@ -6,7 +10,8 @@ from deduplipy.config import ROW_ID
 
 
 class Blocking(BaseEstimator):
-    def __init__(self, col_names, rules=None, recall=1.0, save_intermediate_steps=False):
+    def __init__(self, col_names: Union[List[str], str], rules: Optional[List[Callable]] = None, recall: float = 1.0,
+                 save_intermediate_steps: bool = False) -> 'Blocking':
         """
         Class for fitting blocking rules and applying them on new pairs
 
@@ -29,7 +34,7 @@ class Blocking(BaseEstimator):
         self.recall = recall
         self.save_intermediate_steps = save_intermediate_steps
 
-    def fit(self, X, y):
+    def fit(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.DataFrame, np.ndarray]) -> 'Blocking':
         """
         Fit Blocking instance on data
 
@@ -84,7 +89,7 @@ class Blocking(BaseEstimator):
                 self.rules_selected.append([rule, rule_name, col_name])
         return self
 
-    def _fingerprint(self, X):
+    def _fingerprint(self, X: pd.DataFrame) -> pd.DataFrame:
         """
         Applies blocking rules to data and adds a column 'fingerprint' containing the blocking rules results
 
@@ -105,7 +110,7 @@ class Blocking(BaseEstimator):
         df_melted.dropna(inplace=True)
         return df_melted
 
-    def _create_pairs_table(self, X_fingerprinted):
+    def _create_pairs_table(self, X_fingerprinted: pd.DataFrame) -> pd.DataFrame:
         """
         Creates a pairs table based on the result of fingerprinting
 
@@ -120,7 +125,7 @@ class Blocking(BaseEstimator):
         pairs_table = pairs_table[pairs_table[f'{ROW_ID}_1'] < pairs_table[f'{ROW_ID}_2']]
         return pairs_table
 
-    def transform(self, X):
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """
         Applies blocking rules on new data
 

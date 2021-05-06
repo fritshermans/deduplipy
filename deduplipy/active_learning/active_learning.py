@@ -1,3 +1,5 @@
+from typing import List, Optional, Union
+
 import numpy as np
 import pandas as pd
 from modAL.models import ActiveLearner
@@ -9,7 +11,8 @@ from deduplipy.config import N_QUERIES
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, col_names, interaction=False, coef_diff_threshold=0.05, verbose=0):
+    def __init__(self, col_names: List[str], interaction: bool = False, coef_diff_threshold: float = 0.05,
+                 verbose: Union[int, bool] = 0) -> 'ActiveStringMatchLearner':
         """
         Class to train a string matching model using active learning.
 
@@ -37,7 +40,7 @@ class ActiveStringMatchLearner:
         self.counter_positive = 0
         self.counter_negative = 0
 
-    def _get_lr_params(self):
+    def _get_lr_params(self) -> Optional[np.ndarray]:
         """
         Returns logistic regression coefficients if the LR model is trained, otherwise `None` is returned
 
@@ -52,7 +55,7 @@ class ActiveStringMatchLearner:
         else:
             return None
 
-    def _get_largest_coef_diff(self):
+    def _get_largest_coef_diff(self) -> Optional[float]:
         """
         Calculates the differences per logistic regression parameter from between different fits. The largest difference
         across the parameters in the last fit is returned. The aim of this function is to suggest early stopping of
@@ -68,7 +71,7 @@ class ActiveStringMatchLearner:
         else:
             return None
 
-    def _get_active_learning_input(self, query_inst):
+    def _get_active_learning_input(self, query_inst: pd.DataFrame) -> np.ndarray:
         """
         Obtain user input for a query during active learning.
 
@@ -102,7 +105,7 @@ class ActiveStringMatchLearner:
         y_new = np.array([int(user_input)], dtype=int)
         return y_new
 
-    def _print_score_histogram(self, X):
+    def _print_score_histogram(self, X: pd.DataFrame) -> None:
         """
         Prints histogram of predict_proba scores for X
 
@@ -115,7 +118,7 @@ class ActiveStringMatchLearner:
         hist = pd.DataFrame({'count': count, 'score': division[1:]})
         print(hist[['score', 'count']].to_string(index=False))
 
-    def fit(self, X):
+    def fit(self, X: pd.DataFrame) -> 'ActiveStringMatchLearner':
         """
         Fit ActiveStringMatchLearner instance on pairs of strings
 
@@ -155,7 +158,7 @@ class ActiveStringMatchLearner:
         if self.verbose:
             self._print_score_histogram(X)
 
-    def predict(self, X):
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
         Predict on new data whether the pairs are a match or not
 
@@ -167,7 +170,7 @@ class ActiveStringMatchLearner:
         """
         return self.learner.predict(X)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
         Predict probabilities on new data whether the pairs are a match or not
 

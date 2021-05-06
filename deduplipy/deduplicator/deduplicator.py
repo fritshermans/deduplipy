@@ -1,4 +1,5 @@
 from itertools import product
+from typing import List, Dict, Optional, Callable, Union
 
 import numpy as np
 import pandas as pd
@@ -11,8 +12,9 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 
 class Deduplicator:
-    def __init__(self, col_names=None, field_info=None, interaction=False, rules=None, recall=1.0,
-                 save_intermediate_steps=False, verbose=0):
+    def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None,
+                 interaction: bool = False, rules: Optional[List[Callable]] = None, recall=1.0,
+                 save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0) -> 'Deduplicator':
         """
         Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
         short, interactive session (interactive learning).
@@ -68,7 +70,7 @@ class Deduplicator:
             repr_str += f'  - {key} = {value}\n'
         return repr_str
 
-    def _create_pairs_table(self, X, n_samples):
+    def _create_pairs_table(self, X: pd.DataFrame, n_samples: int) -> pd.DataFrame:
         """
         Create sample of pairs
 
@@ -101,7 +103,7 @@ class Deduplicator:
             drop=True)
         return pairs_table
 
-    def _calculate_string_similarities(self, X):
+    def _calculate_string_similarities(self, X: pd.DataFrame) -> pd.DataFrame:
         metrics_col_names = []
         for field in self.field_info.keys():
             for metric in self.field_info[field]:
@@ -113,7 +115,7 @@ class Deduplicator:
         X.drop(columns=metrics_col_names, inplace=True)
         return X
 
-    def fit(self, X, n_samples=10_000):
+    def fit(self, X: pd.DataFrame, n_samples: int = 10_000) -> 'Deduplicator':
         """
         Fit the deduplicator instance
 
@@ -138,7 +140,7 @@ class Deduplicator:
         return self
 
     @staticmethod
-    def _add_singletons(X):
+    def _add_singletons(X: pd.DataFrame) -> pd.DataFrame:
         """
         Adds `deduplication_id` to rows that are not deduplicated with other rows.
 
@@ -155,7 +157,7 @@ class Deduplicator:
                                                                                     max_cluster_id + 1 + n_missing)
         return X
 
-    def predict(self, X, score_threshold=0.1):
+    def predict(self, X: pd.DataFrame, score_threshold: float = 0.1) -> pd.DataFrame:
         """
         Predict on new data using the trained deduplicator.
 

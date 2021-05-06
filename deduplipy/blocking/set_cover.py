@@ -1,7 +1,8 @@
 import heapq
+from typing import List, Set
 
 
-def greedy_set_cover(subsets, parent_set, recall=1.0):
+def greedy_set_cover(subsets: List, parent_set: Set, recall: float = 1.0) -> List:
     """
     Greedy set cover algorithm, stops when recall threshold is reached
 
