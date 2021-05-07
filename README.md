@@ -45,7 +45,7 @@ python setup.py develop
 
 Apply deduplication your Pandas dataframe `df` as follows:
 
-```
+```python
 myDedupliPy = Deduplicator(col_names=['name', 'address'])
 myDedupliPy.fit(df)
 ```
@@ -54,6 +54,6 @@ This will start the interactive learning session in which you provide input on w
 During active learning you will get the message that training may be finished once algorithm training has converged.
 Predictions on (new) data are obtained as follows:
 
-```
+```python
 result = myDedupliPy.predict(df)
 ```
