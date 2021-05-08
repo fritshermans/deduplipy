@@ -1,9 +1,8 @@
-[![Version](https://img.shields.io/pypi/v/deduplipy)](https://pypi.org/project/scikit-lego/)
-![](https://img.shields.io/github/license/koaning/scikit-lego)
+[![Version](https://img.shields.io/pypi/v/deduplipy)](https://pypi.org/project/deduplipy/)
 
 # DedupliPy
 
-<a href="https://deduplipy.readthedocs.io/en/latest/"><img src="docs/source/_static/logo.png" width="15%" height="15%" align="left" /></a>
+<a href="https://deduplipy.readthedocs.io/en/latest/"><img src="https://deduplipy.readthedocs.io/en/latest/_images/logo.png" width="15%" height="15%" align="left" /></a>
 
 Deduplication is the task to combine different representations of the same real world entity. This package implements
 deduplication using active learning. Active learning allows for rapid training without having to provide a large,
