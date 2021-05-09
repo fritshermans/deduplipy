@@ -41,7 +41,7 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
             distances = (np.ones_like(adjacency) - np.eye(len(adjacency))) - adjacency
             condensed_distance = ssd.squareform(distances)
             linkage = hierarchy.linkage(condensed_distance, method='centroid')
-            clusters = hierarchy.fcluster(linkage, t=cluster_threshold, criterion='distance')
+            clusters = hierarchy.fcluster(linkage, t=1-cluster_threshold, criterion='distance')
         else:
             clusters = np.array([1])
         clustering.update(dict(zip(subgraph.nodes(), clusters + cluster_counter)))
