@@ -1,0 +1,11 @@
+name_1,row_number_1,name_2,row_number_2,score
+frits,0,frits h,1,0.90
+frits,0,stan,2,0.10
+frits,0,stein,3,0.10
+frits,0,ahmet,4,0.10
+frits h,1,stan,2,0.10
+frits h,1,stein,3,0.10
+frits h,1,ahmet,4,0.10
+stan,2,stein,3,0.40
+stan,2,ahmet,4,0.10
+stein,3,ahmet,4,0.10
