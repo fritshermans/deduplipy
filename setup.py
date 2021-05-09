@@ -9,7 +9,8 @@ base_packages = [
     'python-Levenshtein',
     'fuzzywuzzy',
     'modAL',
-    'openpyxl'
+    'openpyxl',
+    'pytest'
 ]
 
 util_packages = [
