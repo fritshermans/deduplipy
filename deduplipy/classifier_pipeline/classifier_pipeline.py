@@ -31,9 +31,6 @@ class ClassifierPipeline(BaseEstimator):
                 LogisticRegression(class_weight='balanced')
             )
 
-        # force the instance to be fitted such that one can predict during active learning before the model is fitted
-        self._fitted = True
-
     def fit(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.DataFrame, np.ndarray]) -> 'ClassifierPipeline':
         """
         Fit the classification pipeline. Does not throw an error when there is only one class in the targets during the
