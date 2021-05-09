@@ -2,43 +2,49 @@ import re
 
 
 def whole_field(x):
-    if len(x):
-        return x
+    x_trimmed = x.strip()
+    if len(x_trimmed):
+        return x_trimmed
     else:
         return None
 
 
 def first_word(x):
-    if len(x):
-        return x.split()[0]
+    x_trimmed = x.strip()
+    if len(x_trimmed):
+        return x_trimmed.split()[0]
     else:
         return None
 
 
 def first_two_words(x):
-    if len(x):
-        return " ".join(x.split()[:2])
+    x_trimmed = x.strip()
+    if len(x_trimmed):
+        return " ".join(x_trimmed.split()[:2])
     else:
         return None
 
 
 def first_three_letters(x):
-    if len(x):
-        return x[:3]
+    x_trimmed = x.strip()
+    if len(x_trimmed):
+        return x_trimmed[:3]
     else:
         return None
 
 
 def first_four_letters(x):
-    if len(x):
-        return x[:4]
+    x_trimmed = x.strip()
+    if len(x_trimmed):
+        return x_trimmed[:4]
     else:
         return None
 
 
 def first_five_letters(x):
-    if len(x):
-        return x[:5]
+    x_trimmed = x.strip()
+    if len(x_trimmed):
+        return x_trimmed[:5]
     else:
         return None
 
