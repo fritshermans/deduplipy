@@ -9,4 +9,5 @@ API Reference
    blocking
    clustering
    classifier_pipeline
+   string_metrics
    load_data
