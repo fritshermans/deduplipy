@@ -3,11 +3,11 @@ from typing import List, Dict, Optional, Callable, Union
 
 import numpy as np
 import pandas as pd
-from fuzzywuzzy.fuzz import ratio, token_sort_ratio
 
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking.blocking import Blocking
 from deduplipy.clustering.clustering import hierarchical_clustering
+from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
 from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 
@@ -42,7 +42,7 @@ class Deduplicator:
         """
         if col_names:
             self.col_names = col_names
-            self.field_info = {col_name: [ratio, token_sort_ratio] for col_name in
+            self.field_info = {col_name: [adjusted_ratio, adjusted_token_sort_ratio] for col_name in
                                self.col_names}
         else:
             self.field_info = field_info
