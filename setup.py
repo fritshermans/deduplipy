@@ -49,5 +49,5 @@ setup(name='DedupliPy',
           "dev": dev_packages,
           "docs": docs_packages,
       },
-      python_requires=">=3.7",
+      python_requires=">=3.6.9",
       )
