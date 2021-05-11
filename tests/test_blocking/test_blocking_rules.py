@@ -120,10 +120,10 @@ def test_largest_integer():
 
 
 def test_three_letter_abbreviation():
-    assert three_letter_abbreviation('one two three') == 'o t t'
-    assert three_letter_abbreviation('one.two three') == 'o t t'
-    assert three_letter_abbreviation('one two ') == 'o t'
-    assert three_letter_abbreviation('one ') == 'o'
-    assert three_letter_abbreviation(' one') == 'o'
+    assert three_letter_abbreviation('one two three') == 'ott'
+    assert three_letter_abbreviation('one two three four') == 'ott'
+    assert three_letter_abbreviation('one.two three') == 'ott'
+    assert three_letter_abbreviation('one two') is None
+    assert three_letter_abbreviation('one') is None
     assert three_letter_abbreviation(' ') is None
     assert three_letter_abbreviation('') is None

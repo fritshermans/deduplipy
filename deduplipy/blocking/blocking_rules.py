@@ -115,8 +115,8 @@ def largest_integer(x):
 def three_letter_abbreviation(x):
     letters = re.compile((r'[a-zA-Z]+')).findall
     word_list = letters(x)
-    if len(word_list):
-        abbreviation = " ".join(w[0] for w in word_list)
+    if len(word_list) >= 3:
+        abbreviation = "".join(w[0] for w in word_list[:3])
         return abbreviation
     else:
         return None
