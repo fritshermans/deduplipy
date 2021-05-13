@@ -1,4 +1,5 @@
 [![Version](https://img.shields.io/pypi/v/deduplipy)](https://pypi.org/project/deduplipy/)
+![](https://img.shields.io/github/license/fritshermans/deduplipy)
 [![Downloads](https://pepy.tech/badge/deduplipy)](https://pepy.tech/project/deduplipy)
 
 # DedupliPy
