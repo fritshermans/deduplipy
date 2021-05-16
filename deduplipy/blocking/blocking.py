@@ -1,10 +1,9 @@
-from typing import List, Optional, Callable, Union, Dict
+from typing import List, Union, Dict
 
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 
-from deduplipy.blocking.blocking_rules import *
 from deduplipy.blocking.set_cover import greedy_set_cover
 from deduplipy.config import ROW_ID
 
