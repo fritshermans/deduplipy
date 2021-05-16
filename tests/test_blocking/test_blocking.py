@@ -1,6 +1,6 @@
 import pandas as pd
 
-from deduplipy.blocking import Blocking
+from deduplipy.blocking import Blocking, all_rules
 
 df = pd.DataFrame({'name': ['frits', 'frits h', 'frank', 'frank h', 'stan', 'stijn', 'ahmet', 'fred', 'frederik'],
                    'row_number': [0, 1, 2, 3, 4, 5, 6, 7, 8]})
@@ -10,7 +10,7 @@ df_pairs = pd.DataFrame({'name_1': ['frits', 'frank', 'stan', 'ahmet', 'fred'],
 
 y = pd.DataFrame({'match': [1, 1, 0, 1, 1]})
 
-myBlocker = Blocking(col_names=['name'])
+myBlocker = Blocking(col_names=['name'], rules_info={'name': all_rules})
 myBlocker.fit(df_pairs, y)
 
 
