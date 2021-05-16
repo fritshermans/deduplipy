@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
-from deduplipy.blocking.blocking import Blocking, all_rules
+from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
 from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
