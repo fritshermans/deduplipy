@@ -27,7 +27,8 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
 
     """
     if inspect:
-        inspect_regex = re.compile(list(inspect.values())[0])
+        inspect_query = list(inspect.values())[0]
+        inspect_regex = re.compile(inspect_query)
         inspect_col_name = list(inspect.keys())[0]
     graph = nx.Graph()
     for j, row in scored_pairs_table.iterrows():
@@ -47,9 +48,11 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
             condensed_distance = ssd.squareform(distances)
             linkage = hierarchy.linkage(condensed_distance, method='centroid')
             clusters = hierarchy.fcluster(linkage, t=1 - cluster_threshold, criterion='distance')
+            plot_nr = 0
             if inspect:
                 inspect_strings = list(nx.get_node_attributes(subgraph, inspect_col_name).values())
                 if any([inspect_regex.match(x) for x in inspect_strings]):
+                    plot_nr += 1
                     fig, ax = plt.subplots(figsize=(10, 5))
                     pos = nx.circular_layout(subgraph)
                     nx.draw_networkx_nodes(subgraph, pos, cmap=plt.cm.Accent, node_size=700, ax=ax)
@@ -82,14 +85,14 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
                     plt.xlim(l - border_size, r + border_size)
                     plt.ylim(b - border_size, t + border_size)
                     plt.axis('off')
-                    plt.savefig('network.png')
+                    plt.savefig(f'network_{inspect_query}_{plot_nr}.png')
 
                     fig = plt.figure()
                     hierarchy.dendrogram(linkage, color_threshold=cluster_threshold, labels=list(name_dict.values()),
                                          leaf_font_size=6)
                     fig.autofmt_xdate()
                     fig.tight_layout()
-                    plt.savefig('dendrogram.png')
+                    plt.savefig(f'dendrogram_{inspect_query}_{plot_nr}.png')
         else:
             clusters = np.array([1])
         clustering.update(dict(zip(subgraph.nodes(), clusters + cluster_counter)))
