@@ -86,7 +86,6 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
                     plt.figure()
                     hierarchy.dendrogram(linkage, color_threshold=cluster_threshold, labels=list(name_dict.values()))
                     plt.savefig('dendrogram.png')
-                    print('test')
         else:
             clusters = np.array([1])
         clustering.update(dict(zip(subgraph.nodes(), clusters + cluster_counter)))
