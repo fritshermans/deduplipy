@@ -163,7 +163,8 @@ class Deduplicator:
                                                                                     max_cluster_id + 1 + n_missing)
         return X
 
-    def predict(self, X: pd.DataFrame, score_threshold: float = 0.1, cluster_threshold: float = 0.5) -> pd.DataFrame:
+    def predict(self, X: pd.DataFrame, score_threshold: float = 0.1, cluster_threshold: float = 0.5,
+                inspect: Dict = None) -> pd.DataFrame:
         """
         Predict on new data using the trained deduplicator.
 
@@ -171,6 +172,7 @@ class Deduplicator:
             X: Pandas dataframe with column as used when fitting deduplicator instance
             score_threshold: Classification threshold to use for filtering before starting hierarchical clustering
             cluster_threshold: threshold to apply in hierarchical clustering
+            inspect: dict containing column name and word to use for inspection
 
         Returns: Pandas dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
         deduplicated.
@@ -199,7 +201,7 @@ class Deduplicator:
         if self.save_intermediate_steps:
             scored_pairs_table.to_csv('scored_pairs_table.csv', index=None, sep="|")
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names,
-                                              cluster_threshold=cluster_threshold)
+                                              cluster_threshold=cluster_threshold, inspect=inspect)
         X = X.merge(df_clusters, on=ROW_ID, how='left').drop(columns=[ROW_ID])
         if self.verbose:
             print('Clustering finished')
