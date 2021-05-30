@@ -49,7 +49,7 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
             clusters = hierarchy.fcluster(linkage, t=1 - cluster_threshold, criterion='distance')
             if inspect:
                 inspect_strings = list(nx.get_node_attributes(subgraph, inspect_col_name).values())
-                if len([inspect_regex.match(x) for x in inspect_strings]):
+                if any([inspect_regex.match(x) for x in inspect_strings]):
                     fig, ax = plt.subplots(figsize=(10, 5))
                     pos = nx.circular_layout(subgraph)
                     nx.draw_networkx_nodes(subgraph, pos, cmap=plt.cm.Accent, node_size=700, ax=ax)
