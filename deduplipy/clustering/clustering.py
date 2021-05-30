@@ -71,8 +71,9 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
                                            alpha=0.8, width=2, ax=ax)
                     edge_labels_filtered = dict()
                     for key, value in edge_labels.items():
-                        edge_labels_filtered.update({key: str(value)})
-                    nx.draw_networkx_edge_labels(subgraph, pos, edge_labels=edge_labels_filtered, font_color='grey', ax=ax)
+                        edge_labels_filtered.update({key: str(round(value, 2))})
+                    nx.draw_networkx_edge_labels(subgraph, pos, edge_labels=edge_labels_filtered, font_color='grey',
+                                                 ax=ax)
 
                     # adds space around graph such that labels are fully shown
                     l, r = plt.xlim()
