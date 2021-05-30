@@ -23,3 +23,12 @@ def test_hierarchical_clustering_cluster_threshold():
                              'row_number': [0, 1, 2, 3, 4]})
     pd.testing.assert_frame_equal(res, expected)
     assert True
+
+
+def test_hierarchical_clustering_inspect():
+    col_names = ['name']
+    scored_pairs_table = pd.read_csv(os.path.join('tests', 'test_clustering', 'clustering_fixture.csv'))
+    _ = hierarchical_clustering(scored_pairs_table, col_names, inspect={'name': 'frits'})
+    assert os.path.exists('dendrogram.png')
+    assert os.path.exists('network.png')
+    assert True
