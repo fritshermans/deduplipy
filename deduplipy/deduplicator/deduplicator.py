@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
-from deduplipy.blocking.blocking import Blocking
+from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
 from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
@@ -13,7 +13,7 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 
 class Deduplicator:
     def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None,
-                 interaction: bool = False, rules: Optional[List[Callable]] = None, recall=1.0,
+                 interaction: bool = False, rules: Union[List[Callable], Dict] = None, recall=1.0,
                  save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0) -> 'Deduplicator':
         """
         Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
@@ -34,7 +34,8 @@ class Deduplicator:
             field_info: dict containing column names as keys and lists of metrics per column name as values, only used
             when col_names is `None`
             interaction: whether to include interaction features
-            rules: list of rules to use for blocking, if not provided, all default rules will be used
+            rules: list of blocking functions to use for all columns or a dict containing column names as keys and lists
+            of blocking functions as values, if not provided, all default rules will be used for all columns
             recall: desired recall reached by blocking rules
             save_intermediate_steps: whether to save intermediate results in csv files for analysis
             verbose: sets verbosity
@@ -49,27 +50,37 @@ class Deduplicator:
             self.col_names = list(self.field_info.keys())
         self.interaction = interaction
         self.rules = rules
+        if self.rules is None:
+            self.rules = all_rules
+        if isinstance(self.rules, list):
+            self.rules_info = {x: all_rules for x in self.col_names}
+        elif isinstance(self.rules, dict):
+            self.rules_info = self.rules
+        else:
+            raise Exception('`rules` must be a list or a dict')
         self.recall = recall
         self.save_intermediate_steps = save_intermediate_steps
         self.verbose = verbose
         self.myActiveLearner = ActiveStringMatchLearner(col_names=self.col_names, interaction=self.interaction,
                                                         verbose=self.verbose)
-        self.myBlocker = Blocking(self.col_names, rules, recall=self.recall,
+        self.myBlocker = Blocking(self.col_names, self.rules_info, recall=self.recall,
                                   save_intermediate_steps=self.save_intermediate_steps)
 
     def __repr__(self):
         repr_dict = {x: self.__dict__[x] for x in
-                     ['col_names', 'field_info', 'interaction', 'rules', 'recall']}
-        field_info_str = dict()
+                     ['col_names', 'field_info', 'interaction', 'rules_info', 'recall']}
 
+        field_info_str = dict()
         for key, value in repr_dict['field_info'].items():
             list_str = [x.__name__ for x in value]
             field_info_str.update({key: list_str})
         repr_dict.update({'field_info': field_info_str})
 
-        if self.rules:
-            rules_str = [x.__name__ for x in self.rules]
-            repr_dict.update({'rules': rules_str})
+        rules_info_str = dict()
+        for key, value in repr_dict['rules_info'].items():
+            list_str = [x.__name__ for x in value]
+            rules_info_str.update({key: list_str})
+        repr_dict.update({'rules_info': rules_info_str})
 
         repr_str = 'Deduplicator\n'
         for key, value in repr_dict.items():
@@ -142,7 +153,7 @@ class Deduplicator:
         self.myBlocker.fit(similarities[self.pairs_col_names], y_pred)
         if self.verbose:
             print('blocking rules found')
-            print([x[1:] for x in self.myBlocker.rules_selected])
+            print([x['col_name'] + " " + x['function_name'] for x in self.myBlocker.rules_selected])
         return self
 
     @staticmethod
