@@ -88,7 +88,7 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
                     plt.savefig(f'network_{inspect_query}_{plot_nr}.png')
 
                     fig = plt.figure()
-                    hierarchy.dendrogram(linkage, color_threshold=cluster_threshold, labels=list(name_dict.values()),
+                    hierarchy.dendrogram(linkage, color_threshold=1-cluster_threshold, labels=list(name_dict.values()),
                                          leaf_font_size=6)
                     fig.autofmt_xdate()
                     fig.tight_layout()
