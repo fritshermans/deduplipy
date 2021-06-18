@@ -40,6 +40,7 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
 
     clustering = {}
     cluster_counter = 0
+    plot_nr = 0
     for component in components:
         subgraph = graph.subgraph(component)
         if len(subgraph.nodes) > 1:
