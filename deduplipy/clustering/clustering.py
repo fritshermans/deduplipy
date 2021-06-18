@@ -32,8 +32,8 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
         inspect_col_name = list(inspect.keys())[0]
     graph = nx.Graph()
     for j, row in scored_pairs_table.iterrows():
-        graph.add_node(row[f'{ROW_ID}_1'], **{col: row[f'{col}_1'] for col in col_names})
-        graph.add_node(row[f'{ROW_ID}_2'], **{col: row[f'{col}_2'] for col in col_names})
+        graph.add_node(row[f'{ROW_ID}_1'], **{col: row[f'{col}_1'] for col in col_names+[ROW_ID]})
+        graph.add_node(row[f'{ROW_ID}_2'], **{col: row[f'{col}_2'] for col in col_names+[ROW_ID]})
         graph.add_edge(row[f'{ROW_ID}_1'], row[f'{ROW_ID}_2'], score=row['score'])
 
     components = nx.connected_components(graph)
@@ -49,7 +49,6 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
             condensed_distance = ssd.squareform(distances)
             linkage = hierarchy.linkage(condensed_distance, method='centroid')
             clusters = hierarchy.fcluster(linkage, t=1 - cluster_threshold, criterion='distance')
-            plot_nr = 0
             if inspect:
                 inspect_strings = list(nx.get_node_attributes(subgraph, inspect_col_name).values())
                 if any([inspect_regex.match(x) for x in inspect_strings]):
@@ -59,8 +58,8 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
                     nx.draw_networkx_nodes(subgraph, pos, cmap=plt.cm.Accent, node_size=700, ax=ax)
 
                     # node labels
-                    name_dict = nx.get_node_attributes(subgraph, inspect_col_name)
-                    labels_formatted = [format_string(name_dict[x]) for x in list(subgraph.nodes)]
+                    name_dict = nx.get_node_attributes(subgraph, ROW_ID)
+                    labels_formatted = [format_string(str(name_dict[x])) for x in list(subgraph.nodes)]
                     labels = dict(zip(subgraph.nodes, labels_formatted))
                     nx.draw_networkx_labels(subgraph, pos, labels=labels, font_size=10, ax=ax)
 
