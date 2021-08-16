@@ -10,7 +10,8 @@ base_packages = [
     'fuzzywuzzy',
     'modAL',
     'openpyxl',
-    'pytest'
+    'pytest',
+    'fancyimpute'
 ]
 
 util_packages = [
