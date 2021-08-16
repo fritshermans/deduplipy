@@ -26,7 +26,7 @@ def fill_missing_links(matrix, convergence_threshold=CONVERGENCE_THRESHOLD):
 
     imputer = SoftImpute(min_value=0, max_value=1, verbose=False, convergence_threshold=convergence_threshold,
                          init_fill_method='mean')  # init_fill_method='mean' significantly improves speed
-    matrix_ = imputer.complete(matrix_)
+    matrix_ = imputer.fit_transform(matrix_)
     # the adjacency matrix needs to have zeros on the diagonal
     np.fill_diagonal(matrix_, 0)
 
