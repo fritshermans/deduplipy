@@ -48,6 +48,18 @@ def fill_missing_links_diff_evol(matrix):
 
 
 def fill_missing_links(matrix, convergence_threshold=CONVERGENCE_THRESHOLD):
+    """
+    Fill missing values in adjacency matrix using SoftImpute. Missing values are considered to be zero,
+    as this is the default of the `nx.to_numpy_matrix` function when there is no edge between two nodes.
+
+    Args:
+        matrix: adjacency matrix
+        convergence_threshold: convergence threshold for SoftImpute algorithm
+
+    Returns:
+        Numpy adjacency matrix with imputed missing values
+
+    """
     matrix_ = matrix.copy()
     np.fill_diagonal(matrix_, 1)
     matrix_[matrix_ == 0] = np.nan
