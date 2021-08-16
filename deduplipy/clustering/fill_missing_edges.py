@@ -4,6 +4,8 @@ from scipy.optimize import differential_evolution
 
 from fancyimpute import SoftImpute
 
+from deduplipy.config import CONVERGENCE_THRESHOLD
+
 
 def _get_missing_positions(matrix):
     pos_missing = []
@@ -45,13 +47,17 @@ def fill_missing_links_diff_evol(matrix):
     return matrix_
 
 
-def fill_missing_links(matrix):
+def fill_missing_links(matrix, convergence_threshold=CONVERGENCE_THRESHOLD):
     matrix_ = matrix.copy()
-    matrix_[matrix_ == 0] = np.nan
     np.fill_diagonal(matrix_, 1)
+    matrix_[matrix_ == 0] = np.nan
+    if not np.isnan(matrix_).any():
+        return matrix
 
-    imputer = SoftImpute(min_value=0, max_value=1, verbose=False)
+    imputer = SoftImpute(min_value=0, max_value=1, verbose=False, convergence_threshold=convergence_threshold,
+                         init_fill_method='mean')  # init_fill_method='mean' significantly improves speed
     matrix_ = imputer.complete(matrix_)
+    # the adjacency matrix needs to have zeros on the diagonal
     np.fill_diagonal(matrix_, 0)
 
     # force symmetry
