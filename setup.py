@@ -11,7 +11,7 @@ base_packages = [
     'modAL',
     'openpyxl',
     'pytest',
-    'fancyimpute'
+    'fancyimpute==0.2.0'
 ]
 
 util_packages = [
