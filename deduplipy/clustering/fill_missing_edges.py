@@ -1,7 +1,5 @@
 import numpy as np
 
-from scipy.optimize import differential_evolution
-
 from fancyimpute import SoftImpute
 
 from deduplipy.config import CONVERGENCE_THRESHOLD
