@@ -30,7 +30,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(name='DedupliPy',
-      version='0.5.1',
+      version='0.5.2',
       author="Frits Hermans",
       description="End-to-end deduplication solution",
       long_description=long_description,
@@ -42,7 +42,7 @@ setup(name='DedupliPy',
           "Operating System :: OS Independent",
       ],
       packages=find_packages(exclude=['notebooks']),
-      package_data={"deduplipy": ["data/"]},
+      package_data={"deduplipy": ["data/*.*"]},
       install_requires=base_packages,
       extras_require={
           "base": base_packages,
