@@ -42,7 +42,7 @@ setup(name='DedupliPy',
           "Operating System :: OS Independent",
       ],
       packages=find_packages(exclude=['notebooks']),
-      package_data={"deduplipy": ["data"]},
+      package_data={"deduplipy": ["data/"]},
       install_requires=base_packages,
       extras_require={
           "base": base_packages,
