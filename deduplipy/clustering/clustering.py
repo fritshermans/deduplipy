@@ -20,6 +20,8 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
         scored_pairs_table: Pandas dataframe containg all pairs and the similarity probability score
         col_names: name to use for deduplication
         cluster_threshold: threshold to apply in hierarchical clustering
+        fill_missing: whether to impute missing values in the adjacency matrix using softimpute, otherwise missing
+        values in the adjacency matrix are filled with zeros
 
     Returns:
         Pandas dataframe containing records with cluster id
@@ -44,7 +46,7 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
             distances = (np.ones_like(adjacency) - np.eye(len(adjacency))) - adjacency
             condensed_distance = ssd.squareform(distances)
             linkage = hierarchy.linkage(condensed_distance, method='centroid')
-            clusters = hierarchy.fcluster(linkage, t=1-cluster_threshold, criterion='distance')
+            clusters = hierarchy.fcluster(linkage, t=1 - cluster_threshold, criterion='distance')
         else:
             clusters = np.array([1])
         clustering.update(dict(zip(subgraph.nodes(), clusters + cluster_counter)))
