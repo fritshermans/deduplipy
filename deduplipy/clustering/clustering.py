@@ -11,7 +11,7 @@ from deduplipy.clustering.fill_missing_edges import fill_missing_links
 
 
 def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
-                            cluster_threshold: float = 0.5, fill_missing=False) -> pd.DataFrame:
+                            cluster_threshold: float = 0.5, fill_missing=True) -> pd.DataFrame:
     """
     Apply hierarchical clustering to scored_pairs_table and perform the actual deduplication by adding a cluster id to
     each record
@@ -38,7 +38,7 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
     for component in components:
         subgraph = graph.subgraph(component)
         if len(subgraph.nodes) > 1:
-            adjacency = nx.to_numpy_matrix(subgraph, weight='score')
+            adjacency = nx.to_numpy_array(subgraph, weight='score')
             if fill_missing:
                 adjacency = fill_missing_links(adjacency)
             distances = (np.ones_like(adjacency) - np.eye(len(adjacency))) - adjacency
