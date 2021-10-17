@@ -8,7 +8,7 @@ from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
-from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, N_PERFECT_MATCHES_TRAIN
 
 
 class Deduplicator:
@@ -113,8 +113,12 @@ class Deduplicator:
 
         pairs_table.sort_values([f'{ROW_ID}_1', f'{ROW_ID}_2'], inplace=True)
 
+        perfect_matches = pairs_table[pairs_table[f'{ROW_ID}_1'] == pairs_table[f'{ROW_ID}_2']].iloc[
+                          :N_PERFECT_MATCHES_TRAIN]
+
         pairs_table = pairs_table[
-            pairs_table[f'{ROW_ID}_1'] <= pairs_table[f'{ROW_ID}_2']]
+            pairs_table[f'{ROW_ID}_1'] < pairs_table[f'{ROW_ID}_2']]
+        pairs_table = perfect_matches.append(pairs_table, ignore_index=True)
         self.pairs_col_names = [f'{x}_1' for x in self.col_names] + [f'{x}_2' for x in self.col_names]
         pairs_table = pairs_table[self.pairs_col_names].reset_index(
             drop=True)
