@@ -72,13 +72,6 @@ class Blocking(BaseEstimator):
             self._rules_specs[j].update({'rule_set': set(
                 df_training[df_training[f'{col_name}_{func_name}'] == 1][f'{col_name}_{func_name}'].index.tolist())})
 
-        # rule_sets = dict
-        # for rule in self.rules:
-        #     for col_name in self.col_names:
-        #         rule_sets.update(
-        #             {f'{col_name}_{rule.__name__}': [rule, rule.__name__, col_name, set(
-        #                 df_training[df_training[f'{col_name}_{rule.__name__}'] == 1][
-        #                     f'{col_name}_{rule.__name__}'].index.tolist())]})
         self.subsets = [x['rule_set'] for x in self._rules_specs]
 
         self.matches = df_training[df_training.match == 1].index.tolist()
