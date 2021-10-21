@@ -101,7 +101,7 @@ class Deduplicator:
         """
         X_pool = X.copy()
         X_pool[ROW_ID] = np.arange(len(X_pool))
-        df_sample = X_pool.sample(n=int(n_samples ** 0.5))
+        df_sample = X_pool.sample(n=min([len(X_pool), int(n_samples ** 0.5)]))
 
         pairs_table = pd.DataFrame(
             list(product(df_sample[self.col_names + [ROW_ID]].values.tolist(),
