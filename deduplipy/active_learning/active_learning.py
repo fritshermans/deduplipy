@@ -7,21 +7,27 @@ from modAL.uncertainty import uncertainty_sampling
 
 from deduplipy.active_learning.utils_active_learning import input_assert
 from deduplipy.classifier_pipeline.classifier_pipeline import ClassifierPipeline
-from deduplipy.config import N_QUERIES
+from deduplipy.config import N_QUERIES, MIN_NR_ENTRIES, UNCERTAINTY_IMPROVEMENT_THRESHOLD, UNCERTAINTY_THRESHOLD
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, col_names: List[str], interaction: bool = False, coef_diff_threshold: float = 0.05,
-                 verbose: Union[int, bool] = 0) -> 'ActiveStringMatchLearner':
+    def __init__(self, col_names: List[str], interaction: bool = False,
+                 uncertainty_threshold: float = UNCERTAINTY_THRESHOLD,
+                 verbose: Union[int, bool] = 0,
+                 uncertainty_improvement_threshold: float = UNCERTAINTY_IMPROVEMENT_THRESHOLD,
+                 min_nr_entries: int = MIN_NR_ENTRIES) -> 'ActiveStringMatchLearner':
         """
         Class to train a string matching model using active learning.
 
         Args:
             col_names: column names to use for matching
             interaction: whether to include interaction features
-            coef_diff_threshold: threshold on largest update difference in logistic regression parameters, when this
-                                threshold is breached, a message is presented that the model had converged
+            uncertainty_threshold: threshold on the uncertainty of the classifier during active learning,
+                used for determining if the model has converged
+            uncertainty_improvement_threshold: threshold on the uncertainty *improvement* of classifier during active
+                learning, used for determining if the model has converged
             verbose: sets verbosity
+            min_nr_entries: minimum number of responses required before classifier convergence is tested
 
         """
         if isinstance(col_names, list):
@@ -30,7 +36,9 @@ class ActiveStringMatchLearner:
             self.col_names = [col_names]
         else:
             raise Exception('col_name should be list or string')
-        self.coef_diff_threshold = coef_diff_threshold
+        self.uncertainty_threshold = uncertainty_threshold
+        self.uncertainty_improvement_threshold = uncertainty_improvement_threshold
+        self.min_nr_entries = min_nr_entries
         self.verbose = verbose
         self.learner = ActiveLearner(
             estimator=ClassifierPipeline(interaction=interaction),
@@ -40,34 +48,18 @@ class ActiveStringMatchLearner:
         self.counter_positive = 0
         self.counter_negative = 0
 
-    def _get_lr_params(self) -> Optional[np.ndarray]:
+    def _get_last_uncertainty_improvement(self, last_n: int = 5) -> Optional[float]:
         """
-        Returns logistic regression coefficients if the LR model is trained, otherwise `None` is returned
+        Calculates the uncertainty differences during active learning. The largest difference over the `last_n`
+        iterations is returned. The aim of this function is to suggest early stopping of active learning.
 
-        Returns: Logistic regression parameters
-
-        """
-        if hasattr(self.learner.estimator.classifier.named_steps['logisticregression'], 'coef_'):
-            intercept = self.learner.estimator.classifier.named_steps['logisticregression'].intercept_[0]
-            coefs = self.learner.estimator.classifier.named_steps['logisticregression'].coef_[0]
-            params = np.insert(coefs, 0, intercept)
-            return params
-        else:
-            return None
-
-    def _get_largest_coef_diff(self) -> Optional[float]:
-        """
-        Calculates the differences per logistic regression parameter from between different fits. The largest difference
-        across the parameters in the last fit is returned. The aim of this function is to suggest early stopping of
-        active learning.
-
-        Returns: largest logistic regression coefficient update in last fit
+        Returns: largest uncertainty update in `last_n` iterations
 
         """
-        parameters = [x for x in self.parameters if isinstance(x, np.ndarray)]
-        if len(parameters) >= 2:
-            parameters_np = np.array(parameters)
-            return abs(np.diff(parameters_np, axis=0)[-1]).max()
+        uncertainties = np.asarray(self.uncertainties)
+        if len(uncertainties) >= last_n + 1:
+            differences = abs(uncertainties[1:] - uncertainties[:-1])
+            return max(differences[-last_n:])
         else:
             return None
 
@@ -84,13 +76,8 @@ class ActiveStringMatchLearner:
                     or 8 to skip the query
 
         """
-        params = self._get_lr_params()
-        if isinstance(params, np.ndarray):
-            params_str = f"\nLR parameters: {params}"
-        else:
-            params_str = ""
         if self.verbose:
-            print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)', params_str)
+            print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)')
         else:
             print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)')
         print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
@@ -125,12 +112,18 @@ class ActiveStringMatchLearner:
         Args:
             X: Pandas dataframe containing pairs of strings
         """
-        self.parameters = [self._get_lr_params()]
+        self.uncertainties = []
 
         self.train_samples = pd.DataFrame([])
         query_inst_prev = None
+        uncertainty = None
         for i in range(N_QUERIES):
             query_idx, query_inst = self.learner.query(np.array(X['similarities'].tolist()))
+            try:
+                uncertainty = 1 - (self.learner.predict_proba(query_inst)[0]).max()
+                self.uncertainties.append(uncertainty)
+            except:
+                pass
             y_new = self._get_active_learning_input(X.iloc[query_idx])
             if y_new == -1:  # use previous (input is 'p')
                 y_new = self._get_active_learning_input(query_inst_prev)
@@ -143,12 +136,13 @@ class ActiveStringMatchLearner:
                 train_sample_to_add['y'] = y_new
                 self.train_samples = self.train_samples.append(train_sample_to_add, ignore_index=True)
             X = X.drop(query_idx).reset_index(drop=True)
-            self.parameters.append(self._get_lr_params())
-            largest_coef_diff = self._get_largest_coef_diff()
-            if largest_coef_diff:
+            last_uncertainty_improvement = self._get_last_uncertainty_improvement()
+            if (self.counter_total >= self.min_nr_entries) and last_uncertainty_improvement:
                 if self.verbose:
-                    print(f"Largest step in LR coefficients: {largest_coef_diff}")
-                if largest_coef_diff < self.coef_diff_threshold:
+                    print(f"Last uncertainty improvement: {last_uncertainty_improvement:.2f}")
+                    print(f'Uncertainty: {uncertainty:.3f}')
+                if (uncertainty < self.uncertainty_threshold) | (
+                        last_uncertainty_improvement < self.uncertainty_improvement_threshold):
                     print("Classifier converged, enter 'f' to stop training")
             if y_new == 1:
                 self.counter_positive += 1
