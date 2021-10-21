@@ -10,7 +10,7 @@ from deduplipy.config import ROW_ID
 
 class Blocking(BaseEstimator):
     def __init__(self, col_names: List[str], rules_info: Dict, recall: float = 1.0,
-                 save_intermediate_steps: bool = False) -> 'Blocking':
+                 save_intermediate_steps: bool = False):
         """
         Class for fitting blocking rules and applying them on new pairs
 
