@@ -14,7 +14,7 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, N_PERFECT_MATCHES_TR
 class Deduplicator:
     def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None,
                  interaction: bool = False, rules: Union[List[Callable], Dict] = None, recall=1.0,
-                 save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0) -> 'Deduplicator':
+                 save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0):
         """
         Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
         short, interactive session (interactive learning).

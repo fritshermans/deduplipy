@@ -15,7 +15,7 @@ class ActiveStringMatchLearner:
                  uncertainty_threshold: float = UNCERTAINTY_THRESHOLD,
                  verbose: Union[int, bool] = 0,
                  uncertainty_improvement_threshold: float = UNCERTAINTY_IMPROVEMENT_THRESHOLD,
-                 min_nr_entries: int = MIN_NR_ENTRIES) -> 'ActiveStringMatchLearner':
+                 min_nr_entries: int = MIN_NR_ENTRIES):
         """
         Class to train a string matching model using active learning.
 
@@ -151,6 +151,7 @@ class ActiveStringMatchLearner:
             self.counter_total += 1
         if self.verbose:
             self._print_score_histogram(X)
+        return self
 
     def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
