@@ -139,7 +139,7 @@ class ActiveStringMatchLearner:
             last_uncertainty_improvement = self._get_last_uncertainty_improvement()
             if (self.counter_total >= self.min_nr_entries) and last_uncertainty_improvement:
                 if self.verbose:
-                    print(f"Last uncertainty improvement: {last_uncertainty_improvement:.2f}")
+                    print(f"Last uncertainty improvement: {last_uncertainty_improvement:.3f}")
                     print(f'Uncertainty: {uncertainty:.3f}')
                 if (uncertainty < self.uncertainty_threshold) | (
                         last_uncertainty_improvement < self.uncertainty_improvement_threshold):
