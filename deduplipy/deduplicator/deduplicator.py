@@ -14,7 +14,7 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, N_PERFECT_MATCHES_TR
 class Deduplicator:
     def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None,
                  interaction: bool = False, rules: Union[List[Callable], Dict] = None, recall=1.0,
-                 save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0) -> 'Deduplicator':
+                 save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0):
         """
         Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
         short, interactive session (interactive learning).
@@ -101,7 +101,7 @@ class Deduplicator:
         """
         X_pool = X.copy()
         X_pool[ROW_ID] = np.arange(len(X_pool))
-        df_sample = X_pool.sample(n=int(n_samples ** 0.5))
+        df_sample = X_pool.sample(n=min([len(X_pool), int(n_samples ** 0.5)]))
 
         pairs_table = pd.DataFrame(
             list(product(df_sample[self.col_names + [ROW_ID]].values.tolist(),
@@ -136,7 +136,7 @@ class Deduplicator:
         X.drop(columns=metrics_col_names, inplace=True)
         return X
 
-    def fit(self, X: pd.DataFrame, n_samples: int = 10_000) -> 'Deduplicator':
+    def fit(self, X: pd.DataFrame, n_samples: int = 100_000) -> 'Deduplicator':
         """
         Fit the deduplicator instance
 

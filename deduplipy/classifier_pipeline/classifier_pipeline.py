@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 class ClassifierPipeline(BaseEstimator):
-    def __init__(self, interaction: bool = False) -> 'ClassifierPipeline':
+    def __init__(self, interaction: bool = False):
         """
         Classification pipeline to be used in ActiveStringMatchLearner. Does not throw an error when there is only one
         class in the targets during the first steps in active learning.
