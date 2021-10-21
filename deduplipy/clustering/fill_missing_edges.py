@@ -26,12 +26,9 @@ def fill_missing_links(matrix, convergence_threshold=CONVERGENCE_THRESHOLD):
     if not np.isnan(matrix_).any():
         return matrix
 
-    with warnings.catch_warnings():  # filter sklearn warnings on randomized_svd, solved in next fancyimpute version
-        warnings.filterwarnings("ignore")
-
-        imputer = SoftImpute(min_value=0, max_value=1, verbose=False, convergence_threshold=convergence_threshold,
-                             init_fill_method='mean')  # init_fill_method='mean' significantly improves speed
-        matrix_ = imputer.fit_transform(matrix_)
+    imputer = SoftImpute(min_value=0, max_value=1, verbose=False, convergence_threshold=convergence_threshold,
+                         init_fill_method='mean')  # init_fill_method='mean' significantly improves speed
+    matrix_ = imputer.fit_transform(matrix_)
     # the adjacency matrix needs to have zeros on the diagonal
     np.fill_diagonal(matrix_, 0)
 
