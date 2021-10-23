@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
 
-import deduplipy
-
 base_packages = [
     'pandas',
     'numpy',
@@ -33,7 +31,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(name='DedupliPy',
-      version=deduplipy.__version__,
+      version='0.6.1',
       author="Frits Hermans",
       description="End-to-end deduplication solution",
       long_description=long_description,
