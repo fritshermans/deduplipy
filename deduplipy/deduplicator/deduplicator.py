@@ -12,7 +12,7 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, N_PERFECT_MATCHES_TR
 
 
 class Deduplicator:
-    def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None,
+    def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None, mode: str = 'lr',
                  interaction: bool = False, rules: Union[List[Callable], Dict] = None, recall=1.0,
                  save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0):
         """
@@ -33,6 +33,7 @@ class Deduplicator:
             be set to `None` as it will be neglected
             field_info: dict containing column names as keys and lists of metrics per column name as values, only used
             when col_names is `None`
+            mode: classifier type to use: 'lr' for logistic regression, 'nn' for neural network
             interaction: whether to include interaction features
             rules: list of blocking functions to use for all columns or a dict containing column names as keys and lists
             of blocking functions as values, if not provided, all default rules will be used for all columns
@@ -48,6 +49,7 @@ class Deduplicator:
         else:
             self.field_info = field_info
             self.col_names = list(self.field_info.keys())
+        self.mode = mode
         self.interaction = interaction
         self.rules = rules
         if self.rules is None:
@@ -61,8 +63,9 @@ class Deduplicator:
         self.recall = recall
         self.save_intermediate_steps = save_intermediate_steps
         self.verbose = verbose
-        self.myActiveLearner = ActiveStringMatchLearner(col_names=self.col_names, interaction=self.interaction,
-                                                        verbose=self.verbose)
+        self.n_features = sum([len(x) for x in self.field_info.values()])
+        self.myActiveLearner = ActiveStringMatchLearner(col_names=self.col_names, n_features=self.n_features,
+                                                        mode=self.mode, verbose=self.verbose)
         self.myBlocker = Blocking(self.col_names, self.rules_info, recall=self.recall,
                                   save_intermediate_steps=self.save_intermediate_steps)
 

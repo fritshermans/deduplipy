@@ -11,7 +11,9 @@ base_packages = [
     'modAL',
     'openpyxl',
     'pytest',
-    'fancyimpute'
+    'fancyimpute',
+    'scikeras',
+    'tensorflow'
 ]
 
 util_packages = [

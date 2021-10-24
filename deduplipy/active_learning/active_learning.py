@@ -11,23 +11,24 @@ from deduplipy.config import N_QUERIES, MIN_NR_ENTRIES, UNCERTAINTY_IMPROVEMENT_
 
 
 class ActiveStringMatchLearner:
-    def __init__(self, col_names: List[str], interaction: bool = False,
+    def __init__(self, col_names: List[str], n_features: int, mode: str = 'lr', interaction: bool = False,
                  uncertainty_threshold: float = UNCERTAINTY_THRESHOLD,
-                 verbose: Union[int, bool] = 0,
                  uncertainty_improvement_threshold: float = UNCERTAINTY_IMPROVEMENT_THRESHOLD,
-                 min_nr_entries: int = MIN_NR_ENTRIES):
+                 min_nr_entries: int = MIN_NR_ENTRIES, verbose: Union[int, bool] = 0):
         """
         Class to train a string matching model using active learning.
 
         Args:
             col_names: column names to use for matching
-            interaction: whether to include interaction features
+            n_features: number of features used by classifier
+            mode: classifier type to use: 'lr' for logistic regression, 'nn' for neural network
+            interaction: whether or not to create interaction features
             uncertainty_threshold: threshold on the uncertainty of the classifier during active learning,
                 used for determining if the model has converged
             uncertainty_improvement_threshold: threshold on the uncertainty *improvement* of classifier during active
                 learning, used for determining if the model has converged
-            verbose: sets verbosity
             min_nr_entries: minimum number of responses required before classifier convergence is tested
+            verbose: sets verbosity
 
         """
         if isinstance(col_names, list):
@@ -36,12 +37,15 @@ class ActiveStringMatchLearner:
             self.col_names = [col_names]
         else:
             raise Exception('col_name should be list or string')
+        self.n_features = n_features
+        self.mode = mode
+        self.interaction = interaction
         self.uncertainty_threshold = uncertainty_threshold
         self.uncertainty_improvement_threshold = uncertainty_improvement_threshold
         self.min_nr_entries = min_nr_entries
         self.verbose = verbose
         self.learner = ActiveLearner(
-            estimator=ClassifierPipeline(interaction=interaction),
+            estimator=ClassifierPipeline(n_features, mode=self.mode, interaction=self.interaction),
             query_strategy=uncertainty_sampling,
         )
         self.counter_total = 0
