@@ -4,7 +4,7 @@ from typing import List
 import pandas as pd
 
 
-class Sampling:
+class Sampling(abc.ABC):
     def __init__(self, col_names: List[str]):
         self.col_names = col_names
         self.pairs_col_names = Sampling.get_pairs_col_names(self.col_names)
