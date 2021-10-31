@@ -103,8 +103,18 @@ class Deduplicator:
             Pandas dataframe containing pairs
 
         """
-        naive_pairs = NaiveSampling(self.col_names).sample(X, n_samples // 2)
-        nn_pairs = NearestNeighborsPairsSampler(self.col_names).sample(X, n_samples // 2)
+        n_samples_nn = n_samples // 2
+        if len(X) // 2 < n_samples_nn:
+            n_neighbors = n_samples_nn // len(X)
+        else:
+            n_neighbors = 2
+        nn_pairs = NearestNeighborsPairsSampler(self.col_names, n_neighbors=n_neighbors).sample(X, n_samples // 2)
+        # the number of first neighbors can be (much) smaller than n_samples//2, in such case take more random pairs
+        if len(nn_pairs) < n_samples // 2:
+            n_samples_naive = n_samples - len(nn_pairs)
+        else:
+            n_samples_naive = n_samples // 2
+        naive_pairs = NaiveSampling(self.col_names).sample(X, n_samples_naive)
         pairs = naive_pairs.append(nn_pairs)
         return pairs.drop_duplicates()
 

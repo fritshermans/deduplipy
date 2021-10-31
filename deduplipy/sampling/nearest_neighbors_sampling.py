@@ -32,8 +32,13 @@ class NearestNeighborsPairsSampler(Sampling):
         distance, index = self._calculate_nearest_neighbors(X)
 
         pairs = X.copy()
-        pairs['distance'] = distance[:, 1]
-        pairs['index_2'] = index[:, 1]
+        pairs['distance'] = distance[:, 1:].tolist()
+        pairs['index_2'] = index[:, 1:].tolist()
+        pairs['distance_index_2'] = pairs.apply(lambda row: list(zip(row['distance'], row['index_2'])), axis=1)
+        pairs = pairs.explode('distance_index_2').drop(columns=['distance', 'index_2'])
+        pairs[['distance', 'index_2']] = pairs['distance_index_2'].tolist()
+        pairs = pairs.drop(columns=['distance_index_2'])
+
         pairs_filtered = pairs.reset_index()
         pairs_filtered = pairs_filtered[pairs_filtered['index'] < pairs_filtered['index_2']]
         pairs = (pairs.merge(pairs_filtered[self.col_names + ['index']],
