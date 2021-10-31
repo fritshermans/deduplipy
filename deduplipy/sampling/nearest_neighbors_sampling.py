@@ -13,6 +13,18 @@ from .sampling import Sampling
 class NearestNeighborsPairsSampler(Sampling):
     def __init__(self, col_names: List[str], n_neighbors: int = 2, metric: str = 'manhattan', analyzer: str = 'char_wb',
                  ngram_range: Tuple[int] = (1, 5)):
+        """
+        Class to create a pairs table sample for `col_names` by taking `n_neighbors` nearest neighbors in the vector space created by a
+        ScikitLearn CountVectorizer with `analyzer`, `metric` and `ngram_range`.
+
+        Args:
+            col_names: column names to use for creating pairs
+            n_neighbors: number of nearest neighbors to include
+            metric: distance metric to use for the CountVectorizer
+            analyzer: way how CountVectorizer creates tokens
+            ngram_range: range of n-grams sizes the CountVectorizer uses
+
+        """
         super().__init__(col_names)
         self.n_neighbors = n_neighbors
         self.metric = metric
@@ -23,12 +35,39 @@ class NearestNeighborsPairsSampler(Sampling):
         self.nn = NearestNeighbors(n_neighbors=self.n_neighbors, metric=self.metric)
 
     def _calculate_nearest_neighbors(self, X: pd.DataFrame) -> Tuple[np.array, np.array]:
+        """
+        Method to find nearest neighbors using the pipeline containing a CountVectorizer and NearestNeighbors for
+        Pandas dataframe X.
+
+        Args:
+            X: Pandas dataframe for which nearest neighbors should be found
+
+        Returns:
+            tuple containing distances and indices of nearest neighbors
+
+        Note: The first distance is distance of a point with itself and the first column is therefore always 0. Same
+        applies to the indices; the first column is always the row number of the row itself.
+
+        """
         vectors = self.pipe.fit_transform(X)
         self.nn.fit(vectors)
         distance, index = self.nn.kneighbors(vectors)
         return distance, index
 
     def sample(self, X: pd.DataFrame, n_samples: int) -> pd.DataFrame:
+        """
+        Method to draw sample of pairs of size `n_samples` from dataframe X. Note that `n_samples` cannot be returned if
+        the number of nearest neighbors of the object instance is too low.
+
+        Args:
+            X: Pandas dataframe containing records to create a sample of pairs from
+            n_samples: number of samples to create
+
+        Returns:
+            Pandas dataframe containing the sampled pairs
+
+        """
+
         distance, index = self._calculate_nearest_neighbors(X)
 
         pairs = X.copy()

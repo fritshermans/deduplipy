@@ -10,10 +10,29 @@ from .sampling import Sampling
 
 class NaiveSampling(Sampling):
     def __init__(self, col_names: List[str], n_perfect_matches: int = N_PERFECT_MATCHES_TRAIN):
+        """
+        Class to create a pairs table sample by naively comparing all rows with all other rows. The resulting pairs will
+        mostly contain non-matches.
+
+        Args:
+            col_names: column names to use for creating pairs
+            n_perfect_matches: number of perfect matches to include, helps during the active learning phase
+        """
         super().__init__(col_names)
         self.n_perfect_matches = n_perfect_matches
 
     def sample(self, X: pd.DataFrame, n_samples: int) -> pd.DataFrame:
+        """
+        Method to draw sample of pairs of size `n_samples` from dataframe X.
+
+        Args:
+            X: Pandas dataframe containing records to create a sample of pairs from
+            n_samples: number of samples to create
+
+        Returns:
+            Pandas dataframe containing the sampled pairs
+
+        """
         X_pool = X.copy()
         X_pool[ROW_ID] = np.arange(len(X_pool))
         df_sample = X_pool.sample(n=min([len(X_pool), int(1.1 * np.ceil((n_samples * 2) ** 0.5))]))

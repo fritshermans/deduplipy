@@ -1,5 +1,3 @@
-import math
-
 import pytest
 
 from deduplipy.datasets import load_data
