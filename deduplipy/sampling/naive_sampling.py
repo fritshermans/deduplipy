@@ -16,7 +16,7 @@ class NaiveSampling(Sampling):
     def sample(self, X: pd.DataFrame, n_samples: int) -> pd.DataFrame:
         X_pool = X.copy()
         X_pool[ROW_ID] = np.arange(len(X_pool))
-        df_sample = X_pool.sample(n=min([len(X_pool), int(n_samples ** 0.5)]))
+        df_sample = X_pool.sample(n=min([len(X_pool), int(np.ceil((n_samples * 2) ** 0.5))]))
 
         pairs_table = pd.DataFrame(
             list(product(df_sample[self.col_names + [ROW_ID]].values.tolist(),
