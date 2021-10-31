@@ -1,4 +1,7 @@
+from typing import List, Tuple
+
 import pandas as pd
+import numpy as np
 
 from sklearn.compose import make_column_transformer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -8,7 +11,8 @@ from .sampling import Sampling
 
 
 class NearestNeighborsPairsSampler(Sampling):
-    def __init__(self, col_names, n_neighbors=2, metric='manhattan', analyzer='char_wb', ngram_range=(1, 5)):
+    def __init__(self, col_names: List[str], n_neighbors: int = 2, metric: str = 'manhattan', analyzer: str = 'char_wb',
+                 ngram_range: Tuple[int] = (1, 5)):
         super().__init__(col_names)
         self.n_neighbors = n_neighbors
         self.metric = metric
@@ -18,13 +22,13 @@ class NearestNeighborsPairsSampler(Sampling):
         self.pipe = make_column_transformer(*[(self.cv, col) for col in self.col_names])
         self.nn = NearestNeighbors(n_neighbors=self.n_neighbors, metric=self.metric)
 
-    def _calculate_nearest_neighbors(self, X):
+    def _calculate_nearest_neighbors(self, X: pd.DataFrame) -> Tuple[np.array, np.array]:
         vectors = self.pipe.fit_transform(X)
         self.nn.fit(vectors)
         distance, index = self.nn.kneighbors(vectors)
         return distance, index
 
-    def sample(self, X, n_samples):
+    def sample(self, X: pd.DataFrame, n_samples: int) -> pd.DataFrame:
         distance, index = self._calculate_nearest_neighbors(X)
 
         pairs = X.copy()

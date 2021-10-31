@@ -1,4 +1,5 @@
 from itertools import product
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -8,11 +9,11 @@ from .sampling import Sampling
 
 
 class NaiveSampling(Sampling):
-    def __init__(self, col_names, n_perfect_matches=N_PERFECT_MATCHES_TRAIN):
+    def __init__(self, col_names: List[str], n_perfect_matches: int = N_PERFECT_MATCHES_TRAIN):
         super().__init__(col_names)
         self.n_perfect_matches = n_perfect_matches
 
-    def sample(self, X, n_samples):
+    def sample(self, X: pd.DataFrame, n_samples: int) -> pd.DataFrame:
         X_pool = X.copy()
         X_pool[ROW_ID] = np.arange(len(X_pool))
         df_sample = X_pool.sample(n=min([len(X_pool), int(n_samples ** 0.5)]))
