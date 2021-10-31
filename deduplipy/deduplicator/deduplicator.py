@@ -130,7 +130,7 @@ class Deduplicator:
         X.drop(columns=metrics_col_names, inplace=True)
         return X
 
-    def fit(self, X: pd.DataFrame, n_samples: int = 100_000) -> 'Deduplicator':
+    def fit(self, X: pd.DataFrame, n_samples: int = 10_000) -> 'Deduplicator':
         """
         Fit the deduplicator instance
 
