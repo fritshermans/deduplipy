@@ -58,19 +58,13 @@ class Blocking(BaseEstimator):
 
         for j, rule_spec in enumerate(self._rules_specs):
             col_name = rule_spec['col_name']
-            func_name = rule_spec['function_name']
             function = rule_spec['function']
-            df_training[f'{col_name}_1_{func_name}'] = df_training.apply(
+            col_1 = df_training.apply(
                 lambda row: apply_rule(function, row[f'{col_name}_1'], j), axis=1)
-            df_training[f'{col_name}_2_{func_name}'] = df_training.apply(
+            col_2 = df_training.apply(
                 lambda row: apply_rule(function, row[f'{col_name}_2'], j), axis=1)
-            df_training[f'{col_name}_{func_name}'] = df_training.apply(
-                lambda row: int(((row[f'{col_name}_1_{func_name}'] != None) &
-                                 (row[f'{col_name}_2_{func_name}'] != None)) &
-                                (row[f'{col_name}_1_{func_name}'] == row[f'{col_name}_2_{func_name}'])),
-                axis=1)
-            self._rules_specs[j].update({'rule_set': set(
-                df_training[df_training[f'{col_name}_{func_name}'] == 1][f'{col_name}_{func_name}'].index.tolist())})
+            match_result = (((col_1 != None) & (col_2 != None)) & (col_1 == col_2)).astype(int)
+            self._rules_specs[j].update({'rule_set': set((match_result[match_result == 1]).index.tolist())})
 
         self.subsets = [x['rule_set'] for x in self._rules_specs]
 
