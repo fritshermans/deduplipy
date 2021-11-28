@@ -1,4 +1,3 @@
-from itertools import product
 from typing import List, Dict, Optional, Callable, Union
 
 import numpy as np
@@ -7,11 +6,11 @@ import pandas as pd
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
 from deduplipy.sampling import NearestNeighborsPairsSampler
 from deduplipy.sampling.naive_sampling import NaiveSampling
 from deduplipy.sampling.sampling import Sampling
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
-from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, N_PERFECT_MATCHES_TRAIN
 
 
 class Deduplicator:
@@ -108,7 +107,7 @@ class Deduplicator:
             n_neighbors = n_samples_nn // len(X)
         else:
             n_neighbors = 2
-        nn_pairs = NearestNeighborsPairsSampler(self.col_names, n_neighbors=n_neighbors).sample(X, n_samples // 2)
+        nn_pairs = NearestNeighborsPairsSampler(self.col_names, n_neighbors=n_neighbors).sample(X, n_samples_nn)
         # the number of first neighbors can be (much) smaller than n_samples//2, in such case take more random pairs
         if len(nn_pairs) < n_samples // 2:
             n_samples_naive = n_samples - len(nn_pairs)
