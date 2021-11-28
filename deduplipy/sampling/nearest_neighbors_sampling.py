@@ -1,8 +1,7 @@
 from typing import List, Tuple
 
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 from sklearn.compose import make_column_transformer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -12,10 +11,10 @@ from .sampling import Sampling
 
 class NearestNeighborsPairsSampler(Sampling):
     def __init__(self, col_names: List[str], n_neighbors: int = 2, metric: str = 'manhattan', analyzer: str = 'char_wb',
-                 ngram_range: Tuple[int] = (1, 5)):
+                 ngram_range: Tuple[int] = (3, 3)):
         """
-        Class to create a pairs table sample for `col_names` by taking `n_neighbors` nearest neighbors in the vector space created by a
-        ScikitLearn CountVectorizer with `analyzer`, `metric` and `ngram_range`.
+        Class to create a pairs table sample for `col_names` by taking `n_neighbors` nearest neighbors in the vector
+        space created by a ScikitLearn CountVectorizer with `analyzer`, `metric` and `ngram_range`.
 
         Args:
             col_names: column names to use for creating pairs
@@ -30,7 +29,7 @@ class NearestNeighborsPairsSampler(Sampling):
         self.metric = metric
         self.analyzer = analyzer
         self.ngram_range = ngram_range
-        self.cv = CountVectorizer(analyzer=self.analyzer, ngram_range=self.ngram_range)
+        self.cv = CountVectorizer(analyzer=self.analyzer, ngram_range=self.ngram_range, max_features=1_000, min_df=2)
         self.pipe = make_column_transformer(*[(self.cv, col) for col in self.col_names])
         self.nn = NearestNeighbors(n_neighbors=self.n_neighbors, metric=self.metric)
 
