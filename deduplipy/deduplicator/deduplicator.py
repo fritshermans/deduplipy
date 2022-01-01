@@ -7,7 +7,7 @@ from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
 from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
-from deduplipy.sampling import NearestNeighborsPairsSampler
+from deduplipy.sampling.minhash_sampling import MinHashSampler
 from deduplipy.sampling.naive_sampling import NaiveSampling
 from deduplipy.sampling.sampling import Sampling
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
@@ -102,19 +102,12 @@ class Deduplicator:
             Pandas dataframe containing pairs
 
         """
-        n_samples_nn = n_samples // 2
-        if len(X) // 2 < n_samples_nn:
-            n_neighbors = n_samples_nn // len(X)
-        else:
-            n_neighbors = 2
-        nn_pairs = NearestNeighborsPairsSampler(self.col_names, n_neighbors=n_neighbors).sample(X, n_samples_nn)
-        # the number of first neighbors can be (much) smaller than n_samples//2, in such case take more random pairs
-        if len(nn_pairs) < n_samples // 2:
-            n_samples_naive = n_samples - len(nn_pairs)
-        else:
-            n_samples_naive = n_samples // 2
+        n_samples_minhash = n_samples // 2
+        minhash_pairs = MinHashSampler(self.col_names).sample(X, n_samples_minhash)
+        # the number of minhash samples can be (much) smaller than n_samples//2, in such case take more random pairs:
+        n_samples_naive = n_samples - len(minhash_pairs)
         naive_pairs = NaiveSampling(self.col_names).sample(X, n_samples_naive)
-        pairs = naive_pairs.append(nn_pairs)
+        pairs = naive_pairs.append(minhash_pairs)
         return pairs.drop_duplicates()
 
     def _calculate_string_similarities(self, X: pd.DataFrame) -> pd.DataFrame:
