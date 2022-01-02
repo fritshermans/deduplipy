@@ -28,18 +28,18 @@ class MinHashSampler(Sampling):
         self.analyzer = analyzer
         self.MinHasher = MinHash(self.n_hash_tables, ngram_range=self.ngram_range, analyzer=self.analyzer)
 
-    def sample(self, X: pd.DataFrame, n_samples: int, threshold: float = 0.2) -> pd.DataFrame:
+    def _create_minhash_pairs(self, X: pd.DataFrame, threshold: float) -> pd.DataFrame:
         """
-        Method to draw sample of pairs of size `n_samples` from dataframe X. Note that `n_samples` cannot be returned if
-        the number of pairs above the threshold is too low.
+        Create pairs of rows based on minhashing. Only pairs with a Jaccard similarity larger than `threshold` wil be
+        included. When multiple columns are used for minhashing, the mean of their Jaccard similarities per pair is
+        calculated for thresholding.
 
         Args:
-            X: Pandas dataframe containing records to create a sample of pairs from
-            n_samples: number of samples to create
-            threshold: Jaccard threshold for pair inclusion
+            X: Pandas dataframe
+            threshold: Jaccard similarity threshold
 
         Returns:
-            Pandas dataframe containing the sampled pairs
+            Pandas dataframe containing pairs
 
         """
         df = X.copy()
@@ -66,12 +66,41 @@ class MinHashSampler(Sampling):
                          .drop(columns=['row_number_1', 'row_number_2']))
 
         minhash_pairs = minhash_pairs[minhash_pairs['jaccard_sim'] >= threshold]
+        return minhash_pairs
 
-        minhash_pairs['distance_bucket'] = pd.cut(minhash_pairs['jaccard_sim'], bins=10)
+    def _get_stratified_sample(self, minhash_pairs: pd.DataFrame, n_samples: int, n_buckets: int = 10) -> pd.DataFrame:
+        """
+        Create a stratified sample per Jaccard similarity bucket.
+
+        Args:
+            minhash_pairs: Pandas dataframe containing minhash pair results
+            n_samples: number of samples that need to be generated
+            n_buckets: number of buckets to be applied for stratified sampling
+
+        Returns:
+            Pandas dataframe with stratified sample
+
+        """
+        minhash_pairs['distance_bucket'] = pd.cut(minhash_pairs['jaccard_sim'], bins=n_buckets)
 
         stratified_sample = minhash_pairs.groupby('distance_bucket', group_keys=False).apply(
-            lambda x: x.sample(n=min(len(x), n_samples // 10), replace=False))
+            lambda x: x.sample(n=min(len(x), n_samples // n_buckets), replace=False))
+        return stratified_sample
 
+    def _get_non_stratified_sample(self, minhash_pairs: pd.DataFrame, stratified_sample: pd.DataFrame,
+                                   n_samples: int) -> pd.DataFrame:
+        """
+        Create sample to be added to stratified sample to get a total of `n_samples`
+
+        Args:
+            minhash_pairs: Pandas dataframe containing minhash pair results
+            stratified_sample: Pandas dataframe containing stratified sample results
+            n_samples: total number of samples required
+
+        Returns:
+            Pandas dataframe containing non-stratified sample of minhash pairs
+
+        """
         n_stratified_sample = len(stratified_sample)
         n_non_stratified_sample = n_samples - n_stratified_sample
 
@@ -81,7 +110,28 @@ class MinHashSampler(Sampling):
         non_stratified_sample = (non_stratified_sample[~non_stratified_sample['stratified']]
                                      .sample(frac=1)
                                      .iloc[:n_non_stratified_sample])
+        return non_stratified_sample
 
-        sample = stratified_sample.drop(columns=['stratified']).append(non_stratified_sample)
+    def sample(self, X: pd.DataFrame, n_samples: int, threshold: float = 0.2) -> pd.DataFrame:
+        """
+        Method to draw sample of pairs of size `n_samples` from dataframe X. Note that `n_samples` cannot be returned if
+        the number of pairs above the threshold is too low.
+
+        Args:
+            X: Pandas dataframe containing records to create a sample of pairs from
+            n_samples: number of samples to create
+            threshold: Jaccard threshold for pair inclusion
+
+        Returns:
+            Pandas dataframe containing the sampled pairs
+
+        """
+        minhash_pairs = self._create_minhash_pairs(X, threshold)
+
+        stratified_sample = self._get_stratified_sample(minhash_pairs, n_samples)
+
+        non_stratified_sample = self._get_non_stratified_sample(minhash_pairs, stratified_sample, n_samples)
+
+        sample = stratified_sample.append(non_stratified_sample)[self.pairs_col_names]
 
         return sample
