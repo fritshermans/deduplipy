@@ -28,12 +28,12 @@ class Deduplicator:
 
     Args:
         col_names: list of column names to be used for deduplication, if `col_names` is provided, `field_info` can
-        be set to `None` as it will be neglected
+            be set to `None` as it will be neglected
         field_info: dict containing column names as keys and lists of metrics per column name as values, only used
-        when col_names is `None`
+            when col_names is `None`
         interaction: whether to include interaction features
         rules: list of blocking functions to use for all columns or a dict containing column names as keys and lists
-        of blocking functions as values, if not provided, all default rules will be used for all columns
+            of blocking functions as values, if not provided, all default rules will be used for all columns
         recall: desired recall reached by blocking rules
         save_intermediate_steps: whether to save intermediate results in csv files for analysis
         verbose: sets verbosity

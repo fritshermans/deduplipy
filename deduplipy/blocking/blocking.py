@@ -16,7 +16,7 @@ class Blocking(BaseEstimator):
         col_names: list of column names, also the ones not included in blocking
         rules_info: dict with column names as keys and a list of blocking functions as values
         recall: minimum recall required
-        save_intermediate_steps: whether or not to save intermediate results
+        save_intermediate_steps: whether to save intermediate results
 
     """
     def __init__(self, col_names: List[str], rules_info: Dict, recall: float = 1.0,
@@ -105,7 +105,7 @@ class Blocking(BaseEstimator):
         Creates a pairs table based on the result of fingerprinting
 
         Args:
-            X_fingerprinted: Pandas dataframe containing the finger printing result
+            X_fingerprinted: Pandas dataframe containing the fingerprinting result
 
         Returns:
             pairs table

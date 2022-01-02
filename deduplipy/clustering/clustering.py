@@ -21,7 +21,7 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
         col_names: name to use for deduplication
         cluster_threshold: threshold to apply in hierarchical clustering
         fill_missing: whether to impute missing values in the adjacency matrix using softimpute, otherwise missing
-        values in the adjacency matrix are filled with zeros
+            values in the adjacency matrix are filled with zeros
 
     Returns:
         Pandas dataframe containing records with cluster id
