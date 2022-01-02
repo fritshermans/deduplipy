@@ -1,4 +1,3 @@
-from itertools import product
 from typing import List, Dict, Optional, Callable, Union
 
 import numpy as np
@@ -7,8 +6,10 @@ import pandas as pd
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
+from deduplipy.sampling.sampler import Sampler
+from deduplipy.sampling import MinHashSampler, NaiveSampler
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
-from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, N_PERFECT_MATCHES_TRAIN
 
 
 class Deduplicator:
@@ -65,6 +66,7 @@ class Deduplicator:
                                                         verbose=self.verbose)
         self.myBlocker = Blocking(self.col_names, self.rules_info, recall=self.recall,
                                   save_intermediate_steps=self.save_intermediate_steps)
+        self.pairs_col_names = Sampler.get_pairs_col_names(self.col_names)
 
     def __repr__(self):
         repr_dict = {x: self.__dict__[x] for x in
@@ -99,30 +101,13 @@ class Deduplicator:
             Pandas dataframe containing pairs
 
         """
-        X_pool = X.copy()
-        X_pool[ROW_ID] = np.arange(len(X_pool))
-        df_sample = X_pool.sample(n=min([len(X_pool), int(n_samples ** 0.5)]))
-
-        pairs_table = pd.DataFrame(
-            list(product(df_sample[self.col_names + [ROW_ID]].values.tolist(),
-                         df_sample[self.col_names + [ROW_ID]].values.tolist())))
-
-        pairs_table[[f'{x}_1' for x in self.col_names + [ROW_ID]]] = pairs_table[0].to_list()
-        pairs_table[[f'{x}_2' for x in self.col_names + [ROW_ID]]] = pairs_table[1].to_list()
-        pairs_table.drop(columns=[0, 1], inplace=True)
-
-        pairs_table.sort_values([f'{ROW_ID}_1', f'{ROW_ID}_2'], inplace=True)
-
-        perfect_matches = pairs_table[pairs_table[f'{ROW_ID}_1'] == pairs_table[f'{ROW_ID}_2']].iloc[
-                          :N_PERFECT_MATCHES_TRAIN]
-
-        pairs_table = pairs_table[
-            pairs_table[f'{ROW_ID}_1'] < pairs_table[f'{ROW_ID}_2']]
-        pairs_table = perfect_matches.append(pairs_table, ignore_index=True)
-        self.pairs_col_names = [f'{x}_1' for x in self.col_names] + [f'{x}_2' for x in self.col_names]
-        pairs_table = pairs_table[self.pairs_col_names].reset_index(
-            drop=True)
-        return pairs_table
+        n_samples_minhash = n_samples // 2
+        minhash_pairs = MinHashSampler(self.col_names).sample(X, n_samples_minhash)
+        # the number of minhash samples can be (much) smaller than n_samples//2, in such case take more random pairs:
+        n_samples_naive = n_samples - len(minhash_pairs)
+        naive_pairs = NaiveSampler(self.col_names).sample(X, n_samples_naive)
+        pairs = naive_pairs.append(minhash_pairs)
+        return pairs.drop_duplicates()
 
     def _calculate_string_similarities(self, X: pd.DataFrame) -> pd.DataFrame:
         metrics_col_names = []
@@ -136,7 +121,7 @@ class Deduplicator:
         X.drop(columns=metrics_col_names, inplace=True)
         return X
 
-    def fit(self, X: pd.DataFrame, n_samples: int = 100_000) -> 'Deduplicator':
+    def fit(self, X: pd.DataFrame, n_samples: int = 10_000) -> 'Deduplicator':
         """
         Fit the deduplicator instance
 
