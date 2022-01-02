@@ -64,6 +64,24 @@ class MinHashSampler(Sampling):
                          .groupby(['row_number_1', 'row_number_2'] + self.pairs_col_names, as_index=False)
                          ['jaccard_sim'].mean()
                          .drop(columns=['row_number_1', 'row_number_2']))
+
         minhash_pairs = minhash_pairs[minhash_pairs['jaccard_sim'] >= threshold]
 
-        return minhash_pairs.sample(frac=1).iloc[:n_samples]
+        minhash_pairs['distance_bucket'] = pd.cut(minhash_pairs['jaccard_sim'], bins=10)
+
+        stratified_sample = minhash_pairs.groupby('distance_bucket', group_keys=False).apply(
+            lambda x: x.sample(n=min(len(x), n_samples // 10), replace=False))
+
+        n_stratified_sample = len(stratified_sample)
+        n_non_stratified_sample = n_samples - n_stratified_sample
+
+        stratified_sample['stratified'] = True
+        non_stratified_sample = (minhash_pairs.merge(stratified_sample, how='left', on=minhash_pairs.columns.tolist())
+                                 .fillna({'stratified': False}))
+        non_stratified_sample = (non_stratified_sample[~non_stratified_sample['stratified']]
+                                     .sample(frac=1)
+                                     .iloc[:n_non_stratified_sample])
+
+        sample = stratified_sample.drop(columns=['stratified']).append(non_stratified_sample)
+
+        return sample
