@@ -11,25 +11,25 @@ from deduplipy.config import N_QUERIES, MIN_NR_ENTRIES, UNCERTAINTY_IMPROVEMENT_
 
 
 class ActiveStringMatchLearner:
+    """
+    Class to train a string matching model using active learning.
+
+    Args:
+        col_names: column names to use for matching
+        interaction: whether to include interaction features
+        uncertainty_threshold: threshold on the uncertainty of the classifier during active learning,
+            used for determining if the model has converged
+        uncertainty_improvement_threshold: threshold on the uncertainty *improvement* of classifier during active
+            learning, used for determining if the model has converged
+        verbose: sets verbosity
+        min_nr_entries: minimum number of responses required before classifier convergence is tested
+
+    """
     def __init__(self, col_names: List[str], interaction: bool = False,
                  uncertainty_threshold: float = UNCERTAINTY_THRESHOLD,
                  verbose: Union[int, bool] = 0,
                  uncertainty_improvement_threshold: float = UNCERTAINTY_IMPROVEMENT_THRESHOLD,
                  min_nr_entries: int = MIN_NR_ENTRIES):
-        """
-        Class to train a string matching model using active learning.
-
-        Args:
-            col_names: column names to use for matching
-            interaction: whether to include interaction features
-            uncertainty_threshold: threshold on the uncertainty of the classifier during active learning,
-                used for determining if the model has converged
-            uncertainty_improvement_threshold: threshold on the uncertainty *improvement* of classifier during active
-                learning, used for determining if the model has converged
-            verbose: sets verbosity
-            min_nr_entries: minimum number of responses required before classifier convergence is tested
-
-        """
         if isinstance(col_names, list):
             self.col_names = col_names
         elif isinstance(col_names, str):
@@ -160,7 +160,8 @@ class ActiveStringMatchLearner:
         Args:
             X: Pandas dataframe to predict on
 
-        Returns: predictions
+        Returns:
+            predictions
 
         """
         return self.learner.predict(X)
@@ -172,7 +173,8 @@ class ActiveStringMatchLearner:
         Args:
             X: Pandas dataframe to predict on
 
-        Returns: match probabilities
+        Returns:
+            match probabilities
 
         """
         return self.learner.predict_proba(X)

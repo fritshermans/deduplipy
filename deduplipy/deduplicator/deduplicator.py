@@ -13,35 +13,35 @@ from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_tok
 
 
 class Deduplicator:
+    """
+    Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
+    short, interactive session (interactive learning).
+
+    Example:
+        >>> df = ...
+        >>> myDedupliPy = Deduplicator(['name', 'address'])
+        >>> myDedupliPy.fit(df)
+        >>> myDedupliPy.predict(df)
+
+    The result is a dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
+    deduplicated.
+
+    Args:
+        col_names: list of column names to be used for deduplication, if `col_names` is provided, `field_info` can
+        be set to `None` as it will be neglected
+        field_info: dict containing column names as keys and lists of metrics per column name as values, only used
+        when col_names is `None`
+        interaction: whether to include interaction features
+        rules: list of blocking functions to use for all columns or a dict containing column names as keys and lists
+        of blocking functions as values, if not provided, all default rules will be used for all columns
+        recall: desired recall reached by blocking rules
+        save_intermediate_steps: whether to save intermediate results in csv files for analysis
+        verbose: sets verbosity
+
+    """
     def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None,
                  interaction: bool = False, rules: Union[List[Callable], Dict] = None, recall=1.0,
                  save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0):
-        """
-        Deduplicate entries in Pandas dataframe using columns with names `col_names`. Training takes place during a
-        short, interactive session (interactive learning).
-
-        Usage:
-            df = ...
-            myDedupliPy = Deduplicator(['name', 'address'])
-            myDedupliPy.fit(df)
-            myDedupliPy.predict(df)
-
-        The result is a dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
-        deduplicated.
-
-        Args:
-            col_names: list of column names to be used for deduplication, if `col_names` is provided, `field_info` can
-            be set to `None` as it will be neglected
-            field_info: dict containing column names as keys and lists of metrics per column name as values, only used
-            when col_names is `None`
-            interaction: whether to include interaction features
-            rules: list of blocking functions to use for all columns or a dict containing column names as keys and lists
-            of blocking functions as values, if not provided, all default rules will be used for all columns
-            recall: desired recall reached by blocking rules
-            save_intermediate_steps: whether to save intermediate results in csv files for analysis
-            verbose: sets verbosity
-
-        """
         if col_names:
             self.col_names = col_names
             self.field_info = {col_name: [adjusted_ratio, adjusted_token_sort_ratio] for col_name in
@@ -129,7 +129,8 @@ class Deduplicator:
             X: Pandas dataframe to be used for fitting
             n_samples: number of pairs to be created for active learning
 
-        Returns: trained deduplicator instance
+        Returns:
+            trained deduplicator instance
 
         """
         pairs_table = self._create_pairs_table(X, n_samples)
@@ -174,8 +175,9 @@ class Deduplicator:
             cluster_threshold: threshold to apply in hierarchical clustering
             fill_missing: whether or not to apply missing value imputation on adjacency matrix
 
-        Returns: Pandas dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
-        deduplicated.
+        Returns:
+            Pandas dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
+            deduplicated.
 
         """
         X[ROW_ID] = np.arange(len(X))

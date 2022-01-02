@@ -10,15 +10,15 @@ from sklearn.preprocessing import StandardScaler
 
 
 class ClassifierPipeline(BaseEstimator):
+    """
+    Classification pipeline to be used in ActiveStringMatchLearner. Does not throw an error when there is only one
+    class in the targets during the first steps in active learning.
+
+    Args:
+        interaction: Whether to include interaction features
+
+    """
     def __init__(self, interaction: bool = False):
-        """
-        Classification pipeline to be used in ActiveStringMatchLearner. Does not throw an error when there is only one
-        class in the targets during the first steps in active learning.
-
-        Args:
-            interaction: Whether or not to include interaction features
-
-        """
         if interaction:
             self.classifier = make_pipeline(
                 StandardScaler(),

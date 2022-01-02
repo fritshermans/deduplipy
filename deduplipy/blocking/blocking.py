@@ -9,18 +9,18 @@ from deduplipy.config import ROW_ID
 
 
 class Blocking(BaseEstimator):
+    """
+    Class for fitting blocking rules and applying them on new pairs
+
+    Args:
+        col_names: list of column names, also the ones not included in blocking
+        rules_info: dict with column names as keys and a list of blocking functions as values
+        recall: minimum recall required
+        save_intermediate_steps: whether or not to save intermediate results
+
+    """
     def __init__(self, col_names: List[str], rules_info: Dict, recall: float = 1.0,
                  save_intermediate_steps: bool = False):
-        """
-        Class for fitting blocking rules and applying them on new pairs
-
-        Args:
-            col_names: list of column names, also the ones not included in blocking
-            rules_info: dict with column names as keys and a list of blocking functions as values
-            recall: minimum recall required
-            save_intermediate_steps: whether or not to save intermediate results
-
-        """
         self.rules_info = rules_info
         self.col_names = col_names
         self._get_rules_specs()
