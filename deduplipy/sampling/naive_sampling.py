@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 
 from deduplipy.config import ROW_ID, N_PERFECT_MATCHES_TRAIN
-from .sampling import Sampling
+from .sampler import Sampler
 
 
-class NaiveSampling(Sampling):
+class NaiveSampler(Sampler):
     def __init__(self, col_names: List[str], n_perfect_matches: int = N_PERFECT_MATCHES_TRAIN):
         """
         Class to create a pairs table sample by naively comparing all rows with all other rows. The resulting pairs will

@@ -6,10 +6,10 @@ from sklearn.compose import make_column_transformer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.neighbors import NearestNeighbors
 
-from .sampling import Sampling
+from .sampler import Sampler
 
 
-class NearestNeighborsPairsSampler(Sampling):
+class NearestNeighborsPairsSampler(Sampler):
     def __init__(self, col_names: List[str], n_neighbors: int = 2, metric: str = 'manhattan', analyzer: str = 'char_wb',
                  ngram_range: Tuple[int] = (3, 3)):
         """

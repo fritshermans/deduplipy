@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 from pyminhash import MinHash
 
-from .sampling import Sampling
+from .sampler import Sampler
 
 
-class MinHashSampler(Sampling):
+class MinHashSampler(Sampler):
     def __init__(self, col_names: List[str], n_hash_tables=10, ngram_range: Tuple[int] = (1, 1),
                  analyzer: str = 'word'):
         """

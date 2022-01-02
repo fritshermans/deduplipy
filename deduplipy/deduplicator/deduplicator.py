@@ -7,9 +7,8 @@ from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
 from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
-from deduplipy.sampling.minhash_sampling import MinHashSampler
-from deduplipy.sampling.naive_sampling import NaiveSampling
-from deduplipy.sampling.sampling import Sampling
+from deduplipy.sampling.sampler import Sampler
+from deduplipy.sampling import MinHashSampler, NaiveSampler
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
 
 
@@ -67,7 +66,7 @@ class Deduplicator:
                                                         verbose=self.verbose)
         self.myBlocker = Blocking(self.col_names, self.rules_info, recall=self.recall,
                                   save_intermediate_steps=self.save_intermediate_steps)
-        self.pairs_col_names = Sampling.get_pairs_col_names(self.col_names)
+        self.pairs_col_names = Sampler.get_pairs_col_names(self.col_names)
 
     def __repr__(self):
         repr_dict = {x: self.__dict__[x] for x in
@@ -106,7 +105,7 @@ class Deduplicator:
         minhash_pairs = MinHashSampler(self.col_names).sample(X, n_samples_minhash)
         # the number of minhash samples can be (much) smaller than n_samples//2, in such case take more random pairs:
         n_samples_naive = n_samples - len(minhash_pairs)
-        naive_pairs = NaiveSampling(self.col_names).sample(X, n_samples_naive)
+        naive_pairs = NaiveSampler(self.col_names).sample(X, n_samples_naive)
         pairs = naive_pairs.append(minhash_pairs)
         return pairs.drop_duplicates()
 
