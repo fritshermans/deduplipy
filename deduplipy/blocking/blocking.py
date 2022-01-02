@@ -59,10 +59,8 @@ class Blocking(BaseEstimator):
         for j, rule_spec in enumerate(self._rules_specs):
             col_name = rule_spec['col_name']
             function = rule_spec['function']
-            col_1 = df_training.apply(
-                lambda row: apply_rule(function, row[f'{col_name}_1'], j), axis=1)
-            col_2 = df_training.apply(
-                lambda row: apply_rule(function, row[f'{col_name}_2'], j), axis=1)
+            col_1 = pd.Series([apply_rule(function, x, j) for x in df_training[f'{col_name}_1']])
+            col_2 = pd.Series([apply_rule(function, x, j) for x in df_training[f'{col_name}_2']])
             match_result = (((col_1 != None) & (col_2 != None)) & (col_1 == col_2)).astype(int)
             self._rules_specs[j].update({'rule_set': set((match_result[match_result == 1]).index.tolist())})
 
@@ -95,7 +93,7 @@ class Blocking(BaseEstimator):
             col_name = rule_selected['col_name']
             func_name = rule_selected['function_name']
             function = rule_selected['function']
-            df[f'{col_name}_{func_name}'] = df[col_name].apply(lambda x: function(x))
+            df[f'{col_name}_{func_name}'] = pd.Series([function(x) for x in df[col_name]])
             df.loc[df[f'{col_name}_{func_name}'].notnull(), f'{col_name}_{func_name}'] = \
                 df[df[f'{col_name}_{func_name}'].notnull()][f'{col_name}_{func_name}'] + f":{j}"
         df_melted = df.melt(id_vars=self.col_names + [ROW_ID], value_name='fingerprint').drop(columns=['variable'])
