@@ -7,7 +7,7 @@ base_packages = [
     'scikit-learn',
     'networkx',
     'python-Levenshtein',
-    'fuzzywuzzy',
+    'thefuzz',
     'modAL',
     'openpyxl',
     'pytest',

@@ -1,6 +1,6 @@
 import numpy as np
 
-from fuzzywuzzy.fuzz import ratio, token_sort_ratio, token_set_ratio, partial_ratio
+from thefuzz.fuzz import ratio, token_sort_ratio, token_set_ratio, partial_ratio
 
 
 def length_adjustment(x_1: str, x_2: str) -> float:
