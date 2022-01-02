@@ -9,15 +9,15 @@ from .sampler import Sampler
 
 
 class NaiveSampler(Sampler):
-    def __init__(self, col_names: List[str], n_perfect_matches: int = N_PERFECT_MATCHES_TRAIN):
-        """
-        Class to create a pairs table sample by naively comparing all rows with all other rows. The resulting pairs will
-        mostly contain non-matches.
+    """
+    Class to create a pairs table sample by naively comparing all rows with all other rows. The resulting pairs will
+    mostly contain non-matches.
 
-        Args:
-            col_names: column names to use for creating pairs
-            n_perfect_matches: number of perfect matches to include, helps during the active learning phase
-        """
+    Args:
+        col_names: column names to use for creating pairs
+        n_perfect_matches: number of perfect matches to include, helps during the active learning phase
+    """
+    def __init__(self, col_names: List[str], n_perfect_matches: int = N_PERFECT_MATCHES_TRAIN):
         super().__init__(col_names)
         self.n_perfect_matches = n_perfect_matches
 

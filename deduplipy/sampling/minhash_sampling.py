@@ -8,20 +8,19 @@ from .sampler import Sampler
 
 
 class MinHashSampler(Sampler):
+    """
+    Class to create a pairs table sample for `col_names` by applying minhashing with `n_hash_tables` hash tables.
+    The Scikit-Learn `CountVectorizer` is used for tokenization.
+
+    Args:
+        col_names: column names to use for creating pairs
+        n_hash_tables: number of hash tables to use for hashing
+        analyzer: way how CountVectorizer creates tokens
+        ngram_range: range of n-grams sizes the CountVectorizer uses
+
+    """
     def __init__(self, col_names: List[str], n_hash_tables=10, ngram_range: Tuple[int] = (1, 1),
                  analyzer: str = 'word'):
-        """
-        Class to create a pairs table sample for `col_names` by applying minhashing with `n_hash_tables` hash tables.
-        The
-        Scikit-Learn `CountVectorizer` is used for tokenization.
-
-        Args:
-            col_names: column names to use for creating pairs
-            n_hash_tables: number of hash tables to use for hashing
-            analyzer: way how CountVectorizer creates tokens
-            ngram_range: range of n-grams sizes the CountVectorizer uses
-
-        """
         super().__init__(col_names)
         self.n_hash_tables = n_hash_tables
         self.ngram_range = ngram_range
