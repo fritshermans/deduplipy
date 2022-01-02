@@ -110,14 +110,14 @@ class Deduplicator:
         return pairs.drop_duplicates()
 
     def _calculate_string_similarities(self, X: pd.DataFrame) -> pd.DataFrame:
+        X.reset_index(drop=True, inplace=True)  # need to reset the index because of the list comprehension below
         metrics_col_names = []
         for field in self.field_info.keys():
             for metric in self.field_info[field]:
                 metrics_col_name = f'{field}_{metric.__name__}'
-                X[metrics_col_name] = X.apply(lambda row: metric(row[f'{field}_1'], row[f'{field}_2']), axis=1)
+                X[metrics_col_name] = pd.Series([metric(x, y) for x, y in zip(X[f'{field}_1'], X[f'{field}_2'])])
                 metrics_col_names.append(metrics_col_name)
-        X['similarities'] = X.apply(lambda row: [row[metrics_col_name] for metrics_col_name in metrics_col_names],
-                                    axis=1)
+        X['similarities'] = X[metrics_col_names].values.tolist()
         X.drop(columns=metrics_col_names, inplace=True)
         return X
 
