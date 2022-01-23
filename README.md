@@ -1,6 +1,17 @@
+<!--- BADGES: START --->
 [![Version](https://img.shields.io/pypi/v/deduplipy)](https://pypi.org/project/deduplipy/)
 ![](https://img.shields.io/github/license/fritshermans/deduplipy)
 [![Downloads](https://pepy.tech/badge/deduplipy)](https://pepy.tech/project/deduplipy)
+[![Conda - Platform](https://img.shields.io/conda/pn/conda-forge/deduplipy?logo=anaconda&style=flat)][#conda-forge-package]
+[![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/deduplipy?logo=anaconda&style=flat&color=orange)][#conda-forge-package]
+[![Conda Recipe](https://img.shields.io/static/v1?logo=conda-forge&style=flat&color=green&label=recipe&message=deduplipy)][#conda-forge-feedstock]
+[![Docs - GitHub.io](https://img.shields.io/static/v1?logo=readthdocs&style=flat&color=pink&label=docs&message=deduplipy)][#docs-package]
+
+[#pypi-package]: https://pypi.org/project/deduplipy/
+[#conda-forge-package]: https://anaconda.org/conda-forge/deduplipy
+[#conda-forge-feedstock]: https://github.com/conda-forge/deduplipy-feedstock
+[#docs-package]: https://deduplipy.readthedocs.io/en/latest/
+<!--- BADGES: END --->
 
 # DedupliPy
 
@@ -27,11 +38,22 @@ Documentation can be found [here](https://deduplipy.readthedocs.io/en/latest/)
 
 ### Normal installation
 
-Install directly from Pypi:
+**With pip**
+
+Install directly from PyPI.
 
 ```
 pip install deduplipy
 ```
+
+**With conda**
+
+Install using conda from conda-forge channel.
+
+```
+conda install -c conda-forge deduplipy
+```
+
 
 ### Install to contribute
 
