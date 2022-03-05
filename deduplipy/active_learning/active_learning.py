@@ -101,7 +101,8 @@ class ActiveStringMatchLearner:
             X: features to calculate predict_proba for
 
         """
-        probas = self.learner.predict_proba(X['similarities'].tolist())[:, 1]
+        X_all = pd.concat((self.train_samples, X))
+        probas = self.learner.predict_proba(X_all['similarities'].tolist())[:, 1]
         count, division = np.histogram(probas, bins=np.arange(0, 1.01, 0.05))
         hist = pd.DataFrame({'count': count, 'score': division[1:]})
         print(hist[['score', 'count']].to_string(index=False))
