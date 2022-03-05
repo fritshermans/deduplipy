@@ -107,6 +107,12 @@ class ActiveStringMatchLearner:
         hist = pd.DataFrame({'count': count, 'score': division[1:]})
         print(hist[['score', 'count']].to_string(index=False))
 
+    def _print_min_max_scores(self, X):
+        X_all = pd.concat((self.train_samples, X))
+        pred_max = self.learner.predict_proba(X_all['similarities'].tolist()).max(axis=0)
+        print(f'lowest score: {1 - pred_max[0]:.2f}')
+        print(f'highest score: {pred_max[1]:.2f}')
+
     def fit(self, X: pd.DataFrame) -> 'ActiveStringMatchLearner':
         """
         Fit ActiveStringMatchLearner instance on pairs of strings
@@ -125,9 +131,7 @@ class ActiveStringMatchLearner:
                 uncertainty = 1 - (self.learner.predict_proba(query_inst)[0]).max()
                 self.uncertainties.append(uncertainty)
                 if self.verbose >= 2:
-                    pred_max = self.learner.predict_proba(X['similarities'].tolist()).max(axis=0)
-                    print(f'lowest score: {1-pred_max[0]:.2f}')
-                    print(f'highest score: {pred_max[1]:.2f}')
+                    self._print_min_max_scores(X)
             except:
                 pass
             y_new = self._get_active_learning_input(X.iloc[query_idx])
