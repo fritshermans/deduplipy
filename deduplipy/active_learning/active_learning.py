@@ -25,6 +25,7 @@ class ActiveStringMatchLearner:
         min_nr_entries: minimum number of responses required before classifier convergence is tested
 
     """
+
     def __init__(self, col_names: List[str], interaction: bool = False,
                  uncertainty_threshold: float = UNCERTAINTY_THRESHOLD,
                  verbose: Union[int, bool] = 0,
@@ -122,6 +123,10 @@ class ActiveStringMatchLearner:
             try:
                 uncertainty = 1 - (self.learner.predict_proba(query_inst)[0]).max()
                 self.uncertainties.append(uncertainty)
+                if self.verbose >= 2:
+                    pred_max = self.learner.predict_proba(X['similarities'].tolist()).max(axis=0)
+                    print(f'lowest score: {1-pred_max[0]:.2f}')
+                    print(f'highest score: {pred_max[1]:.2f}')
             except:
                 pass
             y_new = self._get_active_learning_input(X.iloc[query_idx])
