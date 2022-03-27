@@ -6,7 +6,7 @@ import pandas as pd
 from deduplipy.active_learning.active_learning import ActiveStringMatchLearner
 from deduplipy.blocking import Blocking, all_rules
 from deduplipy.clustering.clustering import hierarchical_clustering
-from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, ROW_ID_CENTRAL
 from deduplipy.sampling.sampler import Sampler
 from deduplipy.sampling import MinHashSampler, NaiveSampler
 from deduplipy.string_metrics.string_metrics import adjusted_ratio, adjusted_token_sort_ratio
@@ -39,6 +39,7 @@ class Deduplicator:
         verbose: sets verbosity
 
     """
+
     def __init__(self, col_names: Optional[List[str]] = None, field_info: Optional[Dict] = None,
                  interaction: bool = False, rules: Union[List[Callable], Dict] = None, recall=1.0,
                  save_intermediate_steps: bool = False, verbose: Union[int, bool] = 0):
@@ -204,9 +205,13 @@ class Deduplicator:
             scored_pairs_table.to_csv('scored_pairs_table.csv', index=None, sep="|")
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names,
                                               cluster_threshold=cluster_threshold, fill_missing=fill_missing)
-        X = X.merge(df_clusters, on=ROW_ID, how='left').drop(columns=[ROW_ID])
+        df_clusters[ROW_ID_CENTRAL] = df_clusters[ROW_ID_CENTRAL].fillna(df_clusters[ROW_ID])
+        X = X.merge(df_clusters, on=ROW_ID, how='left')
+        X = self._add_singletons(X)
+        X[ROW_ID_CENTRAL] = X[ROW_ID_CENTRAL].fillna(X[ROW_ID])
+        X = X.merge(X[self.col_names + [ROW_ID]], left_on=ROW_ID_CENTRAL, right_on=ROW_ID, how='left',
+                    suffixes=("", "_central"))
         if self.verbose:
             print('Clustering finished')
-        X = self._add_singletons(X)
         X[DEDUPLICATION_ID_NAME] = X[DEDUPLICATION_ID_NAME].astype(int)
         return X

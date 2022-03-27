@@ -1,5 +1,6 @@
 DEDUPLICATION_ID_NAME = 'deduplication_id'
 ROW_ID = 'row_number'
+ROW_ID_CENTRAL = 'row_number_central'
 N_QUERIES = 999
 CONVERGENCE_THRESHOLD = 0.01
 

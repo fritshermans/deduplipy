@@ -6,8 +6,20 @@ import networkx as nx
 from scipy.cluster import hierarchy
 import scipy.spatial.distance as ssd
 
-from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, ROW_ID_CENTRAL
 from deduplipy.clustering.fill_missing_edges import fill_missing_links
+
+
+def find_central_cluster_nodes(clusters, nodes, distances):
+    central_node_dict = dict()
+    for cluster in set(clusters):
+        cluster_nodes = nodes[np.where(clusters == cluster)]
+        cluster_distance_matrix = distances[np.where(clusters == cluster)][:, np.where(clusters == cluster)[0]]
+        mean_distances = cluster_distance_matrix.mean(axis=1)
+        central_cluster_node = cluster_nodes[np.where(mean_distances == mean_distances.min())][0]
+        central_node_dict.update({cluster: central_cluster_node})
+    central_cluster_nodes = [central_node_dict.get(x) for x in clusters]
+    return central_cluster_nodes
 
 
 def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
@@ -35,10 +47,11 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
 
     components = nx.connected_components(graph)
 
-    clustering = {}
+    clustering = pd.DataFrame()
     cluster_counter = 0
     for component in components:
         subgraph = graph.subgraph(component)
+        nodes = np.asarray(subgraph.nodes())
         if len(subgraph.nodes) > 1:
             adjacency = nx.to_numpy_array(subgraph, weight='score')
             if fill_missing:
@@ -47,11 +60,14 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
             condensed_distance = ssd.squareform(distances)
             linkage = hierarchy.linkage(condensed_distance, method='centroid')
             clusters = hierarchy.fcluster(linkage, t=1 - cluster_threshold, criterion='distance')
+            central_cluster_nodes = find_central_cluster_nodes(clusters, nodes, distances)
         else:
             clusters = np.array([1])
-        clustering.update(dict(zip(subgraph.nodes(), clusters + cluster_counter)))
+            central_cluster_nodes = nodes
+        to_add = pd.DataFrame.from_dict(dict(zip(subgraph.nodes(), clusters + cluster_counter)), orient='index')
+        to_add[ROW_ID_CENTRAL] = central_cluster_nodes
+        clustering = pd.concat([clustering, to_add])
         cluster_counter += len(component)
-    df_clusters = pd.DataFrame.from_dict(clustering, orient='index', columns=[DEDUPLICATION_ID_NAME])
-    df_clusters.sort_values(DEDUPLICATION_ID_NAME, inplace=True)
-    df_clusters[ROW_ID] = df_clusters.index
-    return df_clusters
+    clustering = clustering.reset_index()
+    clustering.columns = [ROW_ID, DEDUPLICATION_ID_NAME, ROW_ID_CENTRAL]
+    return clustering
