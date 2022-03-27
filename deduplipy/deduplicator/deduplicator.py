@@ -210,9 +210,9 @@ class Deduplicator:
         df = df.merge(df_clusters, on=ROW_ID, how='left')
         df = self._add_singletons(df)
         df[ROW_ID_CENTRAL] = df[ROW_ID_CENTRAL].fillna(df[ROW_ID])
-        df = df.merge(X[self.col_names + [ROW_ID]], left_on=ROW_ID_CENTRAL, right_on=ROW_ID, how='left',
+        df = df.merge(df[self.col_names + [ROW_ID]], left_on=ROW_ID_CENTRAL, right_on=ROW_ID, how='left',
                     suffixes=("", "_central"))
         if self.verbose:
             print('Clustering finished')
         df[DEDUPLICATION_ID_NAME] = df[DEDUPLICATION_ID_NAME].astype(int)
-        return X
+        return df
