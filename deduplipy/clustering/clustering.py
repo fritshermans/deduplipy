@@ -1,17 +1,16 @@
 from typing import List
 
-import pandas as pd
-import numpy as np
 import networkx as nx
-from numpy.typing import ArrayLike
-from scipy.cluster import hierarchy
+import numpy as np
+import pandas as pd
 import scipy.spatial.distance as ssd
+from scipy.cluster import hierarchy
 
-from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, ROW_ID_CENTRAL
 from deduplipy.clustering.fill_missing_edges import fill_missing_links
+from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, ROW_ID_CENTRAL
 
 
-def find_central_cluster_nodes(clusters: List[int], nodes: ArrayLike, distances: ArrayLike) -> List[int]:
+def find_central_cluster_nodes(clusters: List[int], nodes: np.ndarray, distances: np.ndarray) -> List[int]:
     """
     For each cluster, find the node ID of the most central node given a distance matrix
 
