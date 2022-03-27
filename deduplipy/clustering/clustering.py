@@ -3,6 +3,7 @@ from typing import List
 import pandas as pd
 import numpy as np
 import networkx as nx
+from numpy.typing import ArrayLike
 from scipy.cluster import hierarchy
 import scipy.spatial.distance as ssd
 
@@ -10,11 +11,25 @@ from deduplipy.config import DEDUPLICATION_ID_NAME, ROW_ID, ROW_ID_CENTRAL
 from deduplipy.clustering.fill_missing_edges import fill_missing_links
 
 
-def find_central_cluster_nodes(clusters, nodes, distances):
+def find_central_cluster_nodes(clusters: List[int], nodes: ArrayLike, distances: ArrayLike) -> List[int]:
+    """
+    For each cluster, find the node ID of the most central node given a distance matrix
+
+    Args:
+        clusters: list of cluster IDs
+        nodes: array of nodes IDs
+        distances: distance matrix
+
+    Returns:
+        list of node IDs that are the center for the cluster a node belongs to
+
+    """
     central_node_dict = dict()
     for cluster in set(clusters):
         cluster_nodes = nodes[np.where(clusters == cluster)]
+        # select the part of the distance matrix that contains only rows and columns for `cluster`
         cluster_distance_matrix = distances[np.where(clusters == cluster)][:, np.where(clusters == cluster)[0]]
+        # the central node is the node that has the lowest mean distance to the other nodes
         mean_distances = cluster_distance_matrix.mean(axis=1)
         central_cluster_node = cluster_nodes[np.where(mean_distances == mean_distances.min())][0]
         central_node_dict.update({cluster: central_cluster_node})
