@@ -22,8 +22,8 @@ def find_central_cluster_nodes(clusters, nodes, distances):
     return central_cluster_nodes
 
 
-def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
-                            cluster_threshold: float = 0.5, fill_missing=True) -> pd.DataFrame:
+def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List, cluster_threshold: float = 0.5,
+                            fill_missing=True, return_canonical=False) -> pd.DataFrame:
     """
     Apply hierarchical clustering to scored_pairs_table and perform the actual deduplication by adding a cluster id to
     each record
@@ -34,6 +34,8 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
         cluster_threshold: threshold to apply in hierarchical clustering
         fill_missing: whether to impute missing values in the adjacency matrix using softimpute, otherwise missing
             values in the adjacency matrix are filled with zeros
+        return_canonical: whether to return canonical record for each cluster, this is the record that is most
+            representative for the cluster
 
     Returns:
         Pandas dataframe containing records with cluster id
@@ -60,14 +62,20 @@ def hierarchical_clustering(scored_pairs_table: pd.DataFrame, col_names: List,
             condensed_distance = ssd.squareform(distances)
             linkage = hierarchy.linkage(condensed_distance, method='centroid')
             clusters = hierarchy.fcluster(linkage, t=1 - cluster_threshold, criterion='distance')
-            central_cluster_nodes = find_central_cluster_nodes(clusters, nodes, distances)
+            if return_canonical:
+                central_cluster_nodes = find_central_cluster_nodes(clusters, nodes, distances)
         else:
             clusters = np.array([1])
-            central_cluster_nodes = nodes
+            if return_canonical:
+                central_cluster_nodes = nodes
         to_add = pd.DataFrame.from_dict(dict(zip(subgraph.nodes(), clusters + cluster_counter)), orient='index')
-        to_add[ROW_ID_CENTRAL] = central_cluster_nodes
+        if return_canonical:
+            to_add[ROW_ID_CENTRAL] = central_cluster_nodes
         clustering = pd.concat([clustering, to_add])
         cluster_counter += len(component)
     clustering = clustering.reset_index()
-    clustering.columns = [ROW_ID, DEDUPLICATION_ID_NAME, ROW_ID_CENTRAL]
+    if return_canonical:
+        clustering.columns = [ROW_ID, DEDUPLICATION_ID_NAME, ROW_ID_CENTRAL]
+    else:
+        clustering.columns = [ROW_ID, DEDUPLICATION_ID_NAME]
     return clustering

@@ -148,12 +148,13 @@ class Deduplicator:
         return self
 
     @staticmethod
-    def _add_singletons(X: pd.DataFrame) -> pd.DataFrame:
+    def _add_singletons(X: pd.DataFrame, return_canonical: bool = False) -> pd.DataFrame:
         """
         Adds `deduplication_id` to rows that are not deduplicated with other rows.
 
         Args:
             X: deduplication result where singletons have missing values for `deduplication_id`
+            return_canonical: whether to return canonical record for each cluster
 
         Returns:
             deduplication result where singletons have values for `deduplication_id`
@@ -163,10 +164,12 @@ class Deduplicator:
         max_cluster_id = X[X[DEDUPLICATION_ID_NAME].notnull()][DEDUPLICATION_ID_NAME].max()
         X.loc[X[DEDUPLICATION_ID_NAME].isnull(), DEDUPLICATION_ID_NAME] = np.arange(max_cluster_id + 1,
                                                                                     max_cluster_id + 1 + n_missing)
+        if return_canonical:
+            X[ROW_ID_CENTRAL] = X[ROW_ID_CENTRAL].fillna(X[ROW_ID])
         return X
 
     def predict(self, X: pd.DataFrame, score_threshold: float = 0.1, cluster_threshold: float = 0.5,
-                fill_missing=True) -> pd.DataFrame:
+                fill_missing=True, return_canonical: bool = False) -> pd.DataFrame:
         """
         Predict on new data using the trained deduplicator.
 
@@ -175,6 +178,8 @@ class Deduplicator:
             score_threshold: Classification threshold to use for filtering before starting hierarchical clustering
             cluster_threshold: threshold to apply in hierarchical clustering
             fill_missing: whether to apply missing value imputation on adjacency matrix
+            return_canonical: whether to return canonical record for each cluster, this is the record that is most
+            representative for the cluster
 
         Returns:
             Pandas dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
@@ -205,14 +210,18 @@ class Deduplicator:
         if self.save_intermediate_steps:
             scored_pairs_table.to_csv('scored_pairs_table.csv', index=None, sep="|")
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names,
-                                              cluster_threshold=cluster_threshold, fill_missing=fill_missing)
-        df_clusters[ROW_ID_CENTRAL] = df_clusters[ROW_ID_CENTRAL].fillna(df_clusters[ROW_ID])
+                                              cluster_threshold=cluster_threshold, fill_missing=fill_missing,
+                                              return_canonical=return_canonical)
+        if return_canonical:
+            df_clusters[ROW_ID_CENTRAL] = df_clusters[ROW_ID_CENTRAL].fillna(df_clusters[ROW_ID])
         df = df.merge(df_clusters, on=ROW_ID, how='left')
-        df = self._add_singletons(df)
-        df[ROW_ID_CENTRAL] = df[ROW_ID_CENTRAL].fillna(df[ROW_ID])
-        df = df.merge(df[self.col_names + [ROW_ID]], left_on=ROW_ID_CENTRAL, right_on=ROW_ID, how='left',
-                    suffixes=("", "_central"))
+        df = self._add_singletons(df, return_canonical)
+        if return_canonical:
+            df = (df.merge(df[self.col_names + [ROW_ID]], left_on=ROW_ID_CENTRAL, right_on=ROW_ID, how='left',
+                          suffixes=("", "_canonical"))
+                  .drop(columns=[ROW_ID + "_canonical"]))
         if self.verbose:
             print('Clustering finished')
         df[DEDUPLICATION_ID_NAME] = df[DEDUPLICATION_ID_NAME].astype(int)
+        df = df[self.col_names + [DEDUPLICATION_ID_NAME] + [x for x in df.columns if '_canonical' in x]]
         return df
