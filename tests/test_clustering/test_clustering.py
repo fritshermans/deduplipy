@@ -23,3 +23,14 @@ def test_hierarchical_clustering_cluster_threshold():
                              'row_number': [0, 1, 2, 3, 4]})
     pd.testing.assert_frame_equal(res.sort_index(axis=1), expected.sort_index(axis=1), check_dtype=False)
     assert True
+
+
+def test_hierarchical_clustering_canonical():
+    col_names = ['name']
+    scored_pairs_table = pd.read_csv(os.path.join('tests', 'test_clustering', 'clustering_fixture.csv'))
+    res = hierarchical_clustering(scored_pairs_table, col_names, return_canonical=True)
+    expected = pd.DataFrame({'deduplication_id': [1, 1, 2, 3, 4],
+                             'row_number': [0, 1, 2, 3, 4],
+                             'row_number_central': [0, 0, 2, 3, 4]})
+    pd.testing.assert_frame_equal(res.sort_index(axis=1), expected.sort_index(axis=1), check_dtype=False)
+    assert True
