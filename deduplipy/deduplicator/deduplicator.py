@@ -223,5 +223,5 @@ class Deduplicator:
         if self.verbose:
             print('Clustering finished')
         df[DEDUPLICATION_ID_NAME] = df[DEDUPLICATION_ID_NAME].astype(int)
-        df = df[self.col_names + [DEDUPLICATION_ID_NAME] + [x for x in df.columns if '_canonical' in x]]
+        df = df[self.col_names + [DEDUPLICATION_ID_NAME] + [x for x in df.columns if x.endswith('_canonical')]]
         return df
