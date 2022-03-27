@@ -174,17 +174,18 @@ class Deduplicator:
             X: Pandas dataframe with column as used when fitting deduplicator instance
             score_threshold: Classification threshold to use for filtering before starting hierarchical clustering
             cluster_threshold: threshold to apply in hierarchical clustering
-            fill_missing: whether or not to apply missing value imputation on adjacency matrix
+            fill_missing: whether to apply missing value imputation on adjacency matrix
 
         Returns:
             Pandas dataframe with a new column `deduplication_id`. Rows with the same `deduplication_id` are
             deduplicated.
 
         """
-        X[ROW_ID] = np.arange(len(X))
+        df = X[self.col_names].drop_duplicates().copy()
+        df[ROW_ID] = np.arange(len(df))
         if self.verbose:
             print('blocking started')
-        pairs_table = self.myBlocker.transform(X)
+        pairs_table = self.myBlocker.transform(df)
         if self.verbose:
             print('blocking finished')
             print(f'Nr of pairs: {len(pairs_table)}')
@@ -206,12 +207,12 @@ class Deduplicator:
         df_clusters = hierarchical_clustering(scored_pairs_table, col_names=self.col_names,
                                               cluster_threshold=cluster_threshold, fill_missing=fill_missing)
         df_clusters[ROW_ID_CENTRAL] = df_clusters[ROW_ID_CENTRAL].fillna(df_clusters[ROW_ID])
-        X = X.merge(df_clusters, on=ROW_ID, how='left')
-        X = self._add_singletons(X)
-        X[ROW_ID_CENTRAL] = X[ROW_ID_CENTRAL].fillna(X[ROW_ID])
-        X = X.merge(X[self.col_names + [ROW_ID]], left_on=ROW_ID_CENTRAL, right_on=ROW_ID, how='left',
+        df = df.merge(df_clusters, on=ROW_ID, how='left')
+        df = self._add_singletons(df)
+        df[ROW_ID_CENTRAL] = df[ROW_ID_CENTRAL].fillna(df[ROW_ID])
+        df = df.merge(X[self.col_names + [ROW_ID]], left_on=ROW_ID_CENTRAL, right_on=ROW_ID, how='left',
                     suffixes=("", "_central"))
         if self.verbose:
             print('Clustering finished')
-        X[DEDUPLICATION_ID_NAME] = X[DEDUPLICATION_ID_NAME].astype(int)
+        df[DEDUPLICATION_ID_NAME] = df[DEDUPLICATION_ID_NAME].astype(int)
         return X
