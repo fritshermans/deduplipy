@@ -132,5 +132,6 @@ class MinHashSampler(Sampler):
         non_stratified_sample = self._get_non_stratified_sample(minhash_pairs, stratified_sample, n_samples)
 
         sample = stratified_sample.append(non_stratified_sample)[self.pairs_col_names]
+        sample['synthetic_perfect_match'] = False
 
         return sample

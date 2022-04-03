@@ -22,7 +22,7 @@ copyright = '2021, Frits Hermans'
 author = 'Frits Hermans'
 
 # The full version, including alpha/beta/rc tags
-release = '0.7.8'
+release = '0.7.9'
 
 # -- General configuration ---------------------------------------------------
 

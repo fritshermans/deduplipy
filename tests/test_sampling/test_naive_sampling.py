@@ -12,7 +12,8 @@ def test_naivesampling_base(n_samples, n_perfect_matches):
     assert set(myNaiveSampling.pairs_col_names) == {'name_1', 'suburb_1', 'postcode_1', 'name_2', 'suburb_2',
                                                     'postcode_2'}
     sample = myNaiveSampling.sample(df, n_samples=n_samples)
-    assert set(sample.columns) == {'name_1', 'suburb_1', 'postcode_1', 'name_2', 'suburb_2', 'postcode_2'}
+    assert set(sample.columns) == {'name_1', 'suburb_1', 'postcode_1', 'name_2', 'suburb_2', 'postcode_2',
+                                   'synthetic_perfect_match'}
     assert n_samples == len(sample)
     # assert that the first `n_perfect_matches` are actually perfect matches:
     perfect_matches = sample.iloc[:n_perfect_matches]
