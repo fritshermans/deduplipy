@@ -108,7 +108,15 @@ class ActiveStringMatchLearner:
         hist = pd.DataFrame({'count': count, 'score': division[1:]})
         print(hist[['score', 'count']].to_string(index=False))
 
-    def _print_min_max_scores(self, X):
+    def _print_min_max_scores(self, X: pd.DataFrame):
+        """
+        Print lowest and highest scores on training data to monitor level of logistic regression asymptotes during
+        active learning
+
+        Args:
+            X: Pandas dataframe containing pairs table with pairs that remain as candidates to be labelled
+
+        """
         X_all = pd.concat((self.train_samples, X))
         pred_max = self.learner.predict_proba(X_all['similarities'].tolist()).max(axis=0)
         print(f'lowest score: {1 - pred_max[0]:.2f}')
