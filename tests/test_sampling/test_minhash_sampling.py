@@ -14,4 +14,5 @@ def test_minhash_sampler_base(n_samples):
                                                       'postcode_2'}
     sample = myMinHashSampling.sample(df, n_samples=n_samples)
     assert math.isclose(n_samples, len(sample), rel_tol=0.1)
-    assert set(sample.columns) == {'name_1', 'suburb_1', 'postcode_1', 'name_2', 'suburb_2', 'postcode_2'}
+    assert set(sample.columns) == {'name_1', 'suburb_1', 'postcode_1', 'name_2', 'suburb_2', 'postcode_2',
+                                   'synthetic_perfect_match'}

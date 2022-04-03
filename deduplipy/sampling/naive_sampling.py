@@ -1,4 +1,6 @@
+from functools import reduce
 from itertools import product
+from operator import and_
 from typing import List
 
 import numpy as np
@@ -46,13 +48,14 @@ class NaiveSampler(Sampler):
         pairs_table.drop(columns=[0, 1], inplace=True)
 
         pairs_table.sort_values([f'{ROW_ID}_1', f'{ROW_ID}_2'], inplace=True)
+        pairs_table['synthetic_perfect_match'] = False
 
         perfect_matches = pairs_table[pairs_table[f'{ROW_ID}_1'] == pairs_table[f'{ROW_ID}_2']].iloc[
                           :self.n_perfect_matches]
+        perfect_matches['synthetic_perfect_match'] = True
 
         pairs_table = pairs_table[
             pairs_table[f'{ROW_ID}_1'] < pairs_table[f'{ROW_ID}_2']]
         pairs_table = perfect_matches.append(pairs_table, ignore_index=True)
-        pairs_table = pairs_table[self.pairs_col_names].reset_index(
-            drop=True)
+        pairs_table = pairs_table[self.pairs_col_names+['synthetic_perfect_match']].reset_index(drop=True)
         return pairs_table.head(n_samples)

@@ -45,6 +45,7 @@ class ActiveStringMatchLearner:
             estimator=ClassifierPipeline(interaction=interaction),
             query_strategy=uncertainty_sampling,
         )
+        self.uncertainties = []
         self.counter_total = 0
         self.counter_positive = 0
         self.counter_negative = 0
@@ -113,6 +114,24 @@ class ActiveStringMatchLearner:
         print(f'lowest score: {1 - pred_max[0]:.2f}')
         print(f'highest score: {pred_max[1]:.2f}')
 
+    def _fit_synthetic_perfect_matches(self, X: pd.DataFrame) -> pd.DataFrame:
+        """
+        Fit the perfect matches that are generated during pairs table creation. The column `synthetic_perfect_match`
+        contains a boolean whether the pair is a synthetic perfect match. Note that perfect matches that are not
+        artificially created are not used to train the classifier by this method.
+
+        Args:
+            X: Pandas dataframe containing pairs table with column `synthetic_perfect_match`
+
+        Returns:
+            Pandas dataframe with the synthetic perfect matches removed
+
+        """
+        self.train_samples = X[X['synthetic_perfect_match']]
+        X = X[~X['synthetic_perfect_match']].reset_index(drop=True)
+        self.learner.teach(np.array(self.train_samples['similarities'].tolist()), np.ones(len(self.train_samples)))
+        return X
+
     def fit(self, X: pd.DataFrame) -> 'ActiveStringMatchLearner':
         """
         Fit ActiveStringMatchLearner instance on pairs of strings
@@ -120,9 +139,7 @@ class ActiveStringMatchLearner:
         Args:
             X: Pandas dataframe containing pairs of strings
         """
-        self.uncertainties = []
-
-        self.train_samples = pd.DataFrame([])
+        X = self._fit_synthetic_perfect_matches(X)
         query_inst_prev = None
         uncertainty = None
         for i in range(N_QUERIES):
