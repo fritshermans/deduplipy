@@ -186,6 +186,8 @@ def three_letter_abbreviation(x):
         return None
 
 
-all_rules = [whole_field, first_word, first_two_words, first_three_letters, first_four_letters, first_five_letters,
-             first_three_letters_no_space, first_four_letters_no_space, first_five_letters_no_space, sorted_integers,
+all_rules = [whole_field, first_word, last_word, first_two_words, last_two_words, first_three_letters,
+             last_three_letters, first_four_letters, last_four_letters, first_five_letters, last_five_letters,
+             first_three_letters_no_space, last_three_letters_no_space, first_four_letters_no_space,
+             last_four_letters_no_space, first_five_letters_no_space, last_five_letters_no_space, sorted_integers,
              first_integer, last_integer, largest_integer, three_letter_abbreviation]
