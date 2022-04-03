@@ -32,7 +32,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(name='DedupliPy',
-      version='0.7.7',
+      version='0.7.8',
       author="Frits Hermans",
       description="End-to-end deduplication solution",
       long_description=long_description,
