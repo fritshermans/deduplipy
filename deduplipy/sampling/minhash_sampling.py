@@ -56,7 +56,7 @@ class MinHashSampler(Sampler):
                               .merge(df.drop(columns=[col]), left_on='row_number_2', right_on='row_number',
                                      suffixes=("_1", "_2"))
                               .drop(columns=['row_number']))
-            minhash_pairs = minhash_pairs.append(minhash_result, ignore_index=True)
+            minhash_pairs = pd.concat([minhash_pairs, minhash_result]).reset_index(drop=True)
 
         # mean of Jaccard similarities over all columns is used for thresholding
         minhash_pairs = (minhash_pairs
