@@ -106,7 +106,7 @@ class Deduplicator:
         # the number of minhash samples can be (much) smaller than n_samples//2, in such case take more random pairs:
         n_samples_naive = n_samples - len(minhash_pairs)
         naive_pairs = NaiveSampler(self.col_names).sample(X, n_samples_naive)
-        pairs = naive_pairs.append(minhash_pairs)
+        pairs = pd.concat([naive_pairs, minhash_pairs]).reset_index(drop=True)
         return pairs.drop_duplicates()
 
     def _calculate_string_similarities(self, X: pd.DataFrame) -> pd.DataFrame:

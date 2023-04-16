@@ -169,7 +169,7 @@ class ActiveStringMatchLearner:
                 self.learner.teach([X.iloc[query_idx]['similarities'].iloc[0]], y_new)
                 train_sample_to_add = X.iloc[query_idx].copy()
                 train_sample_to_add['y'] = y_new
-                self.train_samples = self.train_samples.append(train_sample_to_add, ignore_index=True)
+                self.train_samples = pd.concat([self.train_samples, train_sample_to_add]).reset_index(drop=True)
             X = X.drop(query_idx).reset_index(drop=True)
             last_uncertainty_improvement = self._get_last_uncertainty_improvement()
             if (self.counter_total >= self.min_nr_entries) and last_uncertainty_improvement:
