@@ -83,7 +83,7 @@ class ActiveStringMatchLearner:
         else:
             print(f'\nNr. {self.counter_total + 1} ({self.counter_positive}+/{self.counter_negative}-)')
         print("Is this a match? (y)es, (n)o, (p)revious, (s)kip, (f)inish")
-        with pd.option_context('display.max_colwidth', -1):
+        with pd.option_context('display.max_colwidth', None):
             print('->', query_inst[[f'{col_name}_1' for col_name in self.col_names]].iloc[0].to_string())
             print('->', query_inst[[f'{col_name}_2' for col_name in self.col_names]].iloc[0].to_string())
         user_input = input_assert("", ['y', 'n', 'p', 'f', 's'])
