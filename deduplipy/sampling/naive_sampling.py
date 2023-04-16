@@ -56,6 +56,6 @@ class NaiveSampler(Sampler):
 
         pairs_table = pairs_table[
             pairs_table[f'{ROW_ID}_1'] < pairs_table[f'{ROW_ID}_2']]
-        pairs_table = perfect_matches.append(pairs_table, ignore_index=True)
+        pairs_table = pd.concat([perfect_matches, pairs_table]).reset_index(drop=True)
         pairs_table = pairs_table[self.pairs_col_names+['synthetic_perfect_match']].reset_index(drop=True)
         return pairs_table.head(n_samples)
