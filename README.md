@@ -1,7 +1,7 @@
 <!--- BADGES: START --->
 [![Version](https://img.shields.io/pypi/v/deduplipy)](https://pypi.org/project/deduplipy/)
 ![](https://img.shields.io/github/license/fritshermans/deduplipy)
-[![Downloads](https://pepy.tech/badge/deduplipy)](https://pepy.tech/project/deduplipy)
+[![Downloads](https://static.pepy.tech/badge/deduplipy)](https://pepy.tech/project/deduplipy)
 [![Conda - Platform](https://img.shields.io/conda/pn/conda-forge/deduplipy?logo=anaconda&style=flat)][#conda-forge-package]
 [![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/deduplipy?logo=anaconda&style=flat&color=orange)][#conda-forge-package]
 [![Conda Recipe](https://img.shields.io/static/v1?logo=conda-forge&style=flat&color=green&label=recipe&message=deduplipy)][#conda-forge-feedstock]
