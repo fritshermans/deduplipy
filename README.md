@@ -28,7 +28,7 @@ DedupliPy is an end-to-end solution with advantages over existing solutions:
 - works out of the box, advanced users can choose settings as desired (custom blocking rules, custom metrics,
   interaction features)
 
-Developed by [Frits Hermans](https://www.linkedin.com/in/frits-hermans-data-scientist/)
+Developed by [Frits Hermans](https://fritshermans.github.io/)
 
 ## Documentation
 
