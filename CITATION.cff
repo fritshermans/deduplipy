@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: DedupliPy
+message: >-
+  If you use DedupliPy, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Frits
+    family-names: Hermans
+repository-code: 'https://github.com/fritshermans/deduplipy'
+abstract: >-
+  Deduplication is the task to combine different representations
+  of the same real world entity. This package implements
+  deduplication using active learning.
+keywords:
+  - deduplication
+  - entity resolution
+  - string matching
+  - fuzzy matching
+  - active learning
+license: MIT
