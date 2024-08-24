@@ -7,7 +7,7 @@ type: software
 authors:
   - given-names: Frits
     family-names: Hermans
-repository-code: 'https://github.com/fritshermans/deduplipy'
+repository-code: "https://github.com/fritshermans/deduplipy"
 url: "https://www.deduplipy.com"
 abstract: >-
   Deduplication is the task to combine different representations
